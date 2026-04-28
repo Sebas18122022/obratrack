@@ -1,0 +1,3960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="theme-color" content="#f2f2f7"/>
+<title>ObraTrack</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<style>
+:root {
+  --sf: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+  --bg:       #f2f2f7;
+  --surface:  #ffffff;
+  --surface2: #f2f2f7;
+  --surface3: #e5e5ea;
+  --sep:      rgba(60,60,67,.18);
+  --text:     #000000;
+  --text2:    #3c3c43cc;
+  --text3:    #8e8e93;
+  --text4:    #c7c7cc;
+  --blue:     #007aff;
+  --green:    #34c759;
+  --red:      #ff3b30;
+  --orange:   #ff9500;
+  --purple:   #af52de;
+  --teal:     #5ac8fa;
+  --indigo:   #5856d6;
+  --safe-top: env(safe-area-inset-top, 44px);
+  --safe-bot: env(safe-area-inset-bottom, 34px);
+  --tab-h:    56px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--sf);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 17px;
+  min-height: 100vh;
+  overscroll-behavior: none;
+}
+
+/* ── util ── */
+.hidden { display: none !important; }
+
+/* ══════════════════════════════
+   SCREEN SYSTEM
+══════════════════════════════ */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ══════════════════════════════
+   LOGIN
+══════════════════════════════ */
+#scr-login {
+  background: #0d2418;
+  position: relative;
+  overflow: hidden;
+}
+.login-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 25%, #1e4d2e 0%, #0d2418 65%);
+}
+.login-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(13,36,24,.98) 100%);
+}
+.login-hero {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 48px 32px 24px;
+  position: relative; z-index: 1;
+}
+.login-app-icon { display: none; }
+.login-appname { display: none; }
+.login-appsub  { display: none; }
+.login-bottom {
+  width: 100%;
+  padding: 0 24px calc(var(--safe-bot) + 32px);
+  position: relative; z-index: 1;
+}
+.btn-google-full {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 16px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 14px;
+  font-family: var(--sf);
+  font-size: 17px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  margin-bottom: 16px;
+  -webkit-appearance: none;
+}
+.btn-google-full:active { opacity: .8; }
+.divider-or { display:none; }
+.demo-scroll { display:none; }
+.login-legal { display:none; }
+
+/* ══════════════════════════════
+   SHELL (main app)
+══════════════════════════════ */
+#scr-app { background: var(--bg); }
+
+/* iOS nav bar */
+.ios-nav {
+  background: rgba(242,242,247,.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: .5px solid var(--sep);
+  padding-top: calc(var(--safe-top));
+  position: sticky; top: 0; z-index: 80;
+  display: flex; align-items: center;
+  min-height: calc(44px + var(--safe-top));
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 8px;
+  gap: 8px;
+}
+.ios-nav-back {
+  display: none;
+  color: var(--blue);
+  font-size: 17px;
+  font-weight: 400;
+  background: none; border: none;
+  cursor: pointer;
+  align-items: center; gap: 2px;
+  padding: 0;
+  white-space: nowrap;
+}
+.ios-nav-back.visible { display: flex; }
+.ios-nav-title {
+  flex: 1;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.2px;
+}
+.ios-nav-action {
+  color: var(--blue);
+  font-size: 17px;
+  font-weight: 400;
+  background: none; border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* page scroll area */
+.page-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--tab-h) + var(--safe-bot) + 16px);
+}
+
+/* ── iOS Tab Bar ── */
+.tabbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: calc(var(--tab-h) + var(--safe-bot));
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: .5px solid var(--sep);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 6px;
+  z-index: 90;
+}
+.tab-btn {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3);
+  padding: 0 4px;
+  transition: color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn span {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .1px;
+  transition: color .15s;
+}
+/* pill icon wrapper */
+.tab-icon-pill {
+  width: 44px; height: 28px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  transition: background .2s, transform .15s;
+}
+.tab-btn:active .tab-icon-pill { transform: scale(.88); }
+
+/* colores por tab */
+#tab-proyectos.active .tab-icon-pill { background: rgba(0,122,255,.14); }
+#tab-proyectos.active              { color: var(--blue); }
+
+#tab-dashboard.active .tab-icon-pill { background: rgba(52,199,89,.14); }
+#tab-dashboard.active              { color: var(--green); }
+
+#tab-movimientos.active .tab-icon-pill { background: rgba(255,149,0,.14); }
+#tab-movimientos.active              { color: var(--orange); }
+
+#tab-tareas.active .tab-icon-pill { background: rgba(88,86,214,.14); }
+#tab-tareas.active              { color: var(--indigo); }
+
+#tab-cashflow.active .tab-icon-pill { background: rgba(255,149,0,.14); }
+#tab-cashflow.active              { color: var(--orange); }
+
+/* ── CASHFLOW ── */
+.cf-mes-bar { display:flex; align-items:flex-end; gap:4px; height:120px; margin-bottom:8px; }
+.cf-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.cf-bar { width:100%; border-radius:4px 4px 0 0; transition:height .4s ease; min-height:3px; }
+.cf-bar-label { font-size:10px; color:var(--text3); text-align:center; white-space:nowrap; overflow:hidden; }
+.cf-bar-val { font-size:10px; font-weight:700; text-align:center; }
+.cf-etapa-row { display:flex; align-items:center; gap:10px; padding:11px 16px; border-bottom:.5px solid var(--sep); }
+.cf-etapa-row:last-child { border-bottom:none; }
+
+/* ══════════════════════════════
+   PAGES
+══════════════════════════════ */
+.page { display: none; animation: slideIn .25s ease; }
+.page.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+
+/* ── SECTION ── */
+.ios-section {
+  margin: 20px 16px 0;
+}
+.ios-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+/* ── GROUPED LIST (iOS style) ── */
+.ios-list {
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.ios-row {
+  display: flex; align-items: center;
+  padding: 13px 16px;
+  border-bottom: .5px solid var(--sep);
+  gap: 12px;
+  cursor: pointer;
+  transition: background .1s;
+}
+.ios-row:last-child { border-bottom: none; }
+.ios-row:active { background: var(--surface2); }
+.ios-row-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.ios-row-content { flex: 1; }
+.ios-row-title { font-size: 17px; font-weight: 400; }
+.ios-row-sub { font-size: 13px; color: var(--text3); margin-top: 1px; }
+.ios-row-right { color: var(--text3); display: flex; align-items: center; gap: 4px; }
+.ios-row-val { font-size: 17px; font-weight: 600; }
+.ios-chevron { font-size: 14px; color: var(--text4); }
+
+/* ── METRIC CARDS (horizontal scroll) ── */
+.metrics-scroll {
+  display: flex;
+  gap: 12px;
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.metrics-scroll::-webkit-scrollbar { display: none; }
+.metric-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 16px 18px;
+  min-width: 150px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.metric-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 0 0 16px 16px;
+}
+.mc-red::after { background: var(--red); }
+.mc-green::after { background: var(--green); }
+.mc-blue::after { background: var(--blue); }
+.metric-lbl { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.metric-val { font-size: 22px; font-weight: 700; letter-spacing: -.5px; line-height: 1; }
+.metric-usd { font-size: 12px; color: var(--text3); margin-top: 3px; }
+
+/* ── CAT BAR ITEM ── */
+.cat-bar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px;
+  border-bottom: .5px solid var(--sep);
+}
+.cat-bar-item:last-child { border-bottom: none; }
+.cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.cat-bar-label { font-size: 15px; flex: 1; }
+.cat-bar-wrap { flex: 1; }
+.prog-bg { background: var(--surface2); border-radius: 99px; height: 5px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; }
+.cat-bar-amount { font-size: 14px; font-weight: 600; text-align: right; min-width: 90px; }
+
+/* ── MOV ITEM ── */
+.mov-item {
+  display: flex; align-items: center;
+  padding: 13px 16px;
+  border-bottom: .5px solid var(--sep);
+  gap: 12px;
+}
+.mov-item:last-child { border-bottom: none; }
+.mov-item:active { background: var(--surface2); }
+.mov-icon-wrap { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.mov-content { flex: 1; min-width: 0; }
+.mov-desc { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mov-meta { font-size: 13px; color: var(--text3); margin-top: 1px; }
+.mov-amount { text-align: right; }
+.mov-ars { font-size: 15px; font-weight: 600; }
+.mov-usd { font-size: 12px; color: var(--text3); }
+.t-ing { color: var(--green); }
+.t-eg  { color: var(--red); }
+
+/* ── ADD SHEET (bottom modal) ── */
+.sheet-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+}
+.sheet-overlay.open { display: flex; animation: fadeIn .2s; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.sheet {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  padding: 8px 0 calc(var(--safe-bot) + 16px);
+  animation: slideUp .3s cubic-bezier(.32,1,.41,1);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+.sheet-handle { width: 36px; height: 5px; background: var(--surface3); border-radius: 99px; margin: 0 auto 16px; }
+.sheet-title { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 20px; letter-spacing: -.2px; }
+.sheet-body { padding: 0 16px; }
+.sheet-footer { padding: 16px 16px 0; }
+
+/* ── FORM INPUTS ── */
+.f-group { margin-bottom: 16px; }
+.f-label { font-size: 13px; font-weight: 600; color: var(--text3); margin-bottom: 6px; display: block; letter-spacing: .1px; }
+.f-input {
+  width: 100%;
+  background: var(--surface2);
+  border: none;
+  border-radius: 10px;
+  padding: 13px 14px;
+  font-family: var(--sf);
+  font-size: 17px;
+  color: var(--text);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.f-input:focus { background: var(--surface); box-shadow: 0 0 0 2px var(--blue); }
+.f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.f-seg { display: flex; background: var(--surface2); border-radius: 10px; padding: 2px; }
+.f-seg-btn { flex: 1; padding: 8px; text-align: center; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; color: var(--text3); transition: all .15s; }
+.f-seg-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+
+/* ── BTN ── */
+.btn-full { width: 100%; padding: 16px; border-radius: 14px; font-family: var(--sf); font-size: 17px; font-weight: 600; border: none; cursor: pointer; -webkit-appearance: none; }
+.btn-blue-full { background: var(--blue); color: #fff; }
+.btn-blue-full:active { opacity: .8; }
+.btn-ghost-full { background: var(--surface2); color: var(--text); margin-top: 10px; }
+.btn-ghost-full:active { opacity: .7; }
+
+/* ── PROJECTS PAGE ── */
+.proj-card {
+  background: var(--surface);
+  border-radius: 16px;
+  margin: 0 16px 12px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.proj-card:active { opacity: .85; }
+.proj-card-header {
+  padding: 16px 16px 12px;
+  display: flex; align-items: center; gap: 12px;
+}
+.proj-color-dot { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.proj-card-name { font-size: 17px; font-weight: 700; letter-spacing: -.2px; }
+.proj-card-sub { font-size: 13px; color: var(--text3); margin-top: 2px; }
+.proj-stats { display: flex; border-top: .5px solid var(--sep); }
+.proj-stat { flex: 1; padding: 12px 16px; text-align: center; border-right: .5px solid var(--sep); }
+.proj-stat:last-child { border-right: none; }
+.proj-stat-val { font-size: 15px; font-weight: 700; }
+.proj-stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.proj-add-card {
+  background: var(--surface);
+  border-radius: 16px;
+  margin: 0 16px;
+  padding: 20px 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer;
+  border: 1.5px dashed var(--sep);
+}
+.proj-add-card:active { opacity: .7; }
+
+/* ── KANBAN mobile ── */
+.kanban-tabs { display: flex; background: var(--surface2); border-radius: 10px; padding: 2px; margin: 0 16px 16px; }
+.kanban-tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 13px; font-weight: 600; border-radius: 8px; color: var(--text3); cursor: pointer; }
+.kanban-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+
+/* ── PRESUP ITEM ── */
+.presup-item { padding: 14px 16px; border-bottom: .5px solid var(--sep); }
+.presup-item:last-child { border-bottom: none; }
+.presup-row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.presup-row2 { display: flex; align-items: center; gap: 10px; }
+.presup-pct { font-size: 13px; font-weight: 700; min-width: 36px; text-align: right; }
+
+/* ── BADGE ── */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge-admin  { background: rgba(0,122,255,.12); color: var(--blue); }
+.badge-socio  { background: rgba(52,199,89,.12);  color: var(--green); }
+.badge-viewer { background: rgba(142,142,147,.12); color: var(--text3); }
+
+/* ── TC PILL (in nav) ── */
+.tc-inline { display: flex; align-items: center; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 4px 10px; }
+.tc-inline label { font-size: 12px; color: var(--text3); white-space: nowrap; }
+.tc-inline input { background: transparent; border: none; outline: none; font-family: var(--sf); font-size: 13px; font-weight: 700; color: var(--blue); width: 72px; }
+
+/* ── USER PROFILE ── */
+.profile-header {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 28px 16px 20px;
+}
+.profile-av { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+.profile-name { font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+.profile-role { font-size: 15px; color: var(--text3); margin-top: 4px; }
+
+/* ── EMPTY ── */
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
+.empty-state i { font-size: 44px; display: block; margin-bottom: 12px; opacity: .35; }
+.empty-state p { font-size: 17px; }
+
+/* ── FAB ── */
+.fab {
+  position: fixed;
+  bottom: calc(var(--tab-h) + var(--safe-bot) + 16px);
+  right: 20px;
+  width: 56px; height: 56px;
+  background: var(--blue);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0,122,255,.4);
+  cursor: pointer;
+  z-index: 70;
+  border: none;
+  transition: transform .1s;
+}
+.fab:active { transform: scale(.92); }
+
+/* ── FILTER CHIPS ── */
+.chips-scroll { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; scrollbar-width: none; }
+.chips-scroll::-webkit-scrollbar { display: none; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--surface);
+  color: var(--text2);
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.chip.active { background: var(--blue); color: #fff; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: calc(var(--tab-h) + var(--safe-bot) + 72px);
+  left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.82);
+  backdrop-filter: blur(20px);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 999;
+  display: none;
+  white-space: nowrap;
+}
+
+/* ── SWIPE ── */
+.swipe-container { position:relative; overflow:hidden; border-bottom:.5px solid var(--sep); }
+.swipe-container:last-child { border-bottom:none; }
+.swipe-actions {
+  position:absolute; right:0; top:0; bottom:0;
+  display:flex; align-items:stretch;
+  transform:translateX(100%);
+}
+.swipe-btn {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  width:72px; border:none; cursor:pointer;
+  font-size:18px; gap:3px;
+}
+.swipe-btn span { font-size:10px; font-weight:600; }
+.swipe-edit  { background:var(--blue);   color:#fff; }
+.swipe-anular{ background:var(--orange); color:#fff; }
+.swipe-del   { background:var(--red);    color:#fff; }
+.swipe-content {
+  position:relative; z-index:1;
+  background:var(--surface);
+  display:flex; align-items:center;
+  padding:13px 16px; gap:12px;
+  transition:transform .25s cubic-bezier(.32,1,.41,1);
+  will-change:transform;
+}
+.swipe-content.swiped { transform:translateX(-216px); }
+
+/* ── VISTA POR SOCIO ── */
+.socio-card {
+  background:var(--surface); border-radius:14px;
+  margin:0 16px 12px; overflow:hidden;
+}
+.socio-header {
+  display:flex; align-items:center; gap:12px;
+  padding:14px 16px;
+}
+.socio-stats {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  border-top:.5px solid var(--sep);
+}
+.socio-stat {
+  padding:10px 14px; text-align:center;
+}
+.socio-stat:not(:last-child) { border-right:.5px solid var(--sep); }
+.socio-stat-val { font-size:14px; font-weight:700; }
+.socio-stat-lbl { font-size:10px; color:var(--text3); margin-top:2px; }
+
+/* ── ANULADO ── */
+.mov-anulado { opacity: .45; }
+.mov-anulado .mov-ars { text-decoration: line-through; }
+.anulado-badge { background: rgba(142,142,147,.15); color: var(--text3); font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
+
+/* ── EMOJI PICKER ── */
+.emoji-opt {
+  font-size: 24px; cursor: pointer;
+  width: 40px; height: 40px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  transition: all .12s;
+}
+.emoji-opt:hover, .emoji-opt.sel { background: rgba(0,122,255,.1); border-color: var(--blue); }
+
+/* color selector */
+.color-swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.color-sw { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; position: relative; }
+.color-sw.sel::after { content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:700; }
+/* ── ALERTA PRESUPUESTO ── */
+.alerta-presup {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,59,48,.08);
+  border: 1px solid rgba(255,59,48,.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 0 16px 10px;
+  font-size: 13px;
+  color: var(--red);
+  font-weight: 500;
+}
+
+/* ── DOLAR BLUE ── */
+.dolar-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(52,199,89,.1);
+  border: 1px solid rgba(52,199,89,.2);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  cursor: pointer;
+}
+.dolar-pill.loading { color: var(--text3); background: var(--surface2); border-color: var(--sep); }
+
+/* ── ETAPA ── */
+.etapa-row {
+  background: var(--surface);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.etapa-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+}
+.etapa-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.etapa-prog-bg { height: 5px; background: var(--surface2); }
+.etapa-prog-fill { height: 100%; transition: width .5s ease; }
+
+/* ── QUIÉN PAGÓ ── */
+.quien-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--surface2);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+}
+
+/* ── CUOTAS ── */
+.cuota-badge {
+  background: rgba(88,86,214,.12);
+  color: var(--indigo);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 600;
+}</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════ LOGIN ══════════════════════════════ -->
+<div id="scr-login" class="screen active">
+  <div class="login-bg"></div>
+  <div class="login-overlay"></div>
+  <div class="login-hero">
+    <!-- Logo Urbanseed en SVG -->
+    <div style="margin-bottom:28px">
+      <svg width="120" height="120" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Casa -->
+        <path d="M40 110 L100 50 L160 110 L160 175 Q160 180 155 180 L45 180 Q40 180 40 175 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="5"/>
+        <!-- Árbol / rama dentro -->
+        <line x1="100" y1="175" x2="100" y2="105" stroke="white" stroke-width="7" stroke-linecap="round"/>
+        <line x1="100" y1="140" x2="75" y2="118" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="100" y1="125" x2="122" y2="108" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        <line x1="75" y1="118" x2="62" y2="108" stroke="white" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div style="font-size:26px;font-weight:700;color:#fff;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">URBANSEED</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase">ObraTrack · Gestión de proyectos</div>
+  </div>
+  <div class="login-bottom">
+    <button class="btn-google-full" onclick="loginGoogle()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(20px);margin-bottom:16px">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#4285f4" d="M44.5 20H24v8.5h11.8C34.2 33.8 29.8 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.9 0 20-7.9 20-21 0-1.3-.2-2.7-.5-4z"/><path fill="#34a853" d="M6.3 14.7l7 5.1C15.1 16 19.2 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3c-7.7 0-14.4 4.4-17.7 11.7z"/><path fill="#fbbc05" d="M24 45c5.7 0 10.5-1.9 14.2-5.1l-6.6-5.4C29.8 36.1 27 37 24 37c-5.8 0-10.7-3.9-12.4-9.2l-7 5.4C7.9 40.8 15.4 45 24 45z"/><path fill="#ea4335" d="M44.5 20H24v8.5h11.8c-.8 2.2-2.2 4-4.1 5.3l6.6 5.4C42.2 36.1 45 30.4 45 24c0-1.3-.2-2.7-.5-4z"/></svg>
+      Continuar con Google
+    </button>
+    <div id="login-error-msg" style="display:none;background:rgba(255,59,48,.15);border:1px solid rgba(255,59,48,.3);border-radius:12px;padding:12px 16px;color:rgba(255,255,255,.8);font-size:13px;text-align:center;margin-bottom:12px">
+      ⚠️ Error al conectar con Google. Verificá que el Client Secret en Supabase sea correcto e intentá de nuevo.
+    </div>
+    <div style="text-align:center;color:rgba(255,255,255,.3);font-size:12px">
+      🔒 Login seguro · tus datos, tu cuenta
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ APP ══════════════════════════════ -->
+<div id="scr-app" class="screen">
+
+  <!-- iOS NAV BAR -->
+  <div class="ios-nav" id="ios-nav">
+    <button class="ios-nav-back" id="nav-back" onclick="navBack()">
+      <i class="bi bi-chevron-left"></i> <span id="nav-back-label">Proyectos</span>
+    </button>
+    <div class="ios-nav-title" id="nav-title">Proyectos</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="toggleBusqueda()" style="background:none;border:none;color:var(--blue);font-size:20px;cursor:pointer;padding:4px" title="Buscar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </button>
+      <button class="ios-nav-action" id="nav-action" onclick="navAction()" style="visibility:hidden">Agregar</button>
+    </div>
+  </div>
+
+  <!-- BÚSQUEDA GLOBAL -->
+  <div id="busqueda-overlay" style="display:none;position:fixed;inset:0;background:var(--surface);z-index:150;flex-direction:column">
+    <div style="padding:12px 16px;display:flex;gap:10px;align-items:center;border-bottom:.5px solid var(--sep)">
+      <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:10px;padding:8px 12px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text3)"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="busqueda-input" placeholder="Buscar movimientos, tareas…"
+          style="background:none;border:none;outline:none;font-family:var(--sf);font-size:16px;color:var(--text);flex:1"
+          oninput="renderBusqueda(this.value)" autofocus>
+      </div>
+      <button onclick="toggleBusqueda()" style="background:none;border:none;color:var(--blue);font-size:15px;font-weight:500;cursor:pointer;white-space:nowrap">Cancelar</button>
+    </div>
+    <div id="busqueda-results" style="overflow-y:auto;flex:1;padding-bottom:32px"></div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-scroll" id="page-scroll">
+
+    <!-- TC Row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px 0" id="tc-row-wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="tc-inline">
+          <label>TC $</label>
+          <input type="number" id="tc" value="1270" min="1" onchange="recalcAll()">
+          <span style="font-size:12px;color:var(--text3)">/USD</span>
+        </div>
+        <div class="dolar-pill loading" id="dolar-pill" onclick="fetchDolarBlue()" title="Actualizar dólar blue">
+          💵 Blue
+        </div>
+      </div>
+      <button onclick="exportarExcel()" style="background:rgba(52,199,89,.1);color:var(--green);border:1px solid rgba(52,199,89,.2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M10,19L12,15H9V10H15V15L13,19H10Z"/></svg>
+        Excel
+      </button>
+    </div>
+
+    <!-- PROJECTS PAGE -->
+    <div class="page active" id="pg-proyectos">
+      <div style="padding:16px 16px 8px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:28px;font-weight:700;letter-spacing:-.5px">Proyectos</span>
+        <button onclick="abrirComparativo()" style="background:var(--surface);border:1px solid var(--sep);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:6px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4zm2.5 2.1h-15V5h15v14.1zm0-16.1h-15c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+          Comparar
+        </button>
+      </div>
+
+      <!-- RESUMEN CROSS-PROYECTO -->
+      <div id="cross-resumen" style="margin:0 16px 16px;background:var(--surface);border-radius:16px;overflow:hidden">
+        <div style="padding:14px 16px 10px;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Resumen global</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:.5px solid var(--sep)" id="cross-stats"></div>
+        <div style="padding:10px 16px 14px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:5px">
+            <span>Invertido total</span>
+            <span id="cross-pct-label">0%</span>
+          </div>
+          <div style="background:var(--surface2);border-radius:99px;height:8px;overflow:hidden">
+            <div id="cross-bar" style="height:100%;background:var(--blue);border-radius:99px;transition:width .4s;width:0%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px">
+            <span style="color:var(--red)">■ Costos</span>
+            <span style="color:var(--green)">■ Ganancia proyectada</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="proj-cards"></div>
+      <div class="proj-add-card" onclick="openSheet('sheet-nuevo-proj')">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--blue)"><i class="bi bi-plus"></i></div>
+        <div><div style="font-size:17px;font-weight:600;color:var(--blue)">Nuevo proyecto</div><div style="font-size:13px;color:var(--text3)">Creá una obra, refacción o proyecto</div></div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page" id="pg-dashboard">
+      <div style="padding:16px 0 8px">
+        <div class="metrics-scroll" id="metrics-scroll">
+          <div class="metric-card mc-red"><div class="metric-lbl">Invertido</div><div class="metric-val t-eg" id="m-inv">USD 0</div><div class="metric-usd" id="m-inv-u">$ 0</div></div>
+          <div class="metric-card mc-green"><div class="metric-lbl">Ingresos</div><div class="metric-val t-ing" id="m-ing">USD 0</div><div class="metric-usd" id="m-ing-u">$ 0</div></div>
+          <div class="metric-card"><div class="metric-lbl">Saldo</div><div class="metric-val" id="m-sal">USD 0</div><div class="metric-usd" id="m-sal-u">$ 0</div></div>
+          <div class="metric-card" id="mc-roi" style="min-width:160px">
+            <div class="metric-lbl">ROI Proyectado</div>
+            <div class="metric-val" id="m-roi" style="color:var(--green)">—</div>
+            <div class="metric-usd" id="m-roi-sub">Definí precio de venta</div>
+          </div>
+          <div class="metric-card" id="mc-margen" style="min-width:160px">
+            <div class="metric-lbl">Margen</div>
+            <div class="metric-val" id="m-margen" style="color:var(--green)">—</div>
+            <div class="metric-usd" id="m-margen-sub">sobre precio de venta</div>
+          </div>
+          <div class="metric-card" id="mc-desvio" style="min-width:170px">
+            <div class="metric-lbl" style="display:flex;align-items:center;justify-content:space-between">
+              <span>Desvío margen</span>
+              <span id="margen-obj-label" style="font-size:10px;color:var(--blue);cursor:pointer" onclick="editarMargenObj()">obj: 25%</span>
+            </div>
+            <div class="metric-val" id="m-desvio">—</div>
+            <div class="metric-usd" id="m-desvio-sub">vs objetivo</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AVANCE DE OBRA -->
+      <div class="ios-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-left:4px">
+          <div class="ios-section-label" style="margin:0">Avance de obra</div>
+          <button onclick="openSheet('sheet-etapa')" style="background:rgba(0,122,255,.1);color:var(--blue);border:none;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer">+ Etapa</button>
+        </div>
+        <div id="etapas-list">
+          <div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;background:var(--surface);border-radius:12px">
+            <div style="font-size:28px;margin-bottom:6px">🏗️</div>
+            Agregá las etapas de tu obra para seguir el avance
+          </div>
+        </div>
+      </div>
+
+      <!-- FINANCIERO -->
+      <div class="ios-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-left:4px">
+          <div class="ios-section-label" style="margin:0">Análisis de rentabilidad</div>
+          <button onclick="openNuevaUnidad()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer">+ Unidad</button>
+        </div>
+        <div id="unidades-list"></div>
+        <!-- Resumen total -->
+        <div id="financiero-resumen" style="display:none;background:var(--surface);border-radius:12px;margin-top:10px;overflow:hidden">
+          <div style="padding:14px 16px;border-bottom:.5px solid var(--sep)">
+            <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px">RESUMEN DEL PROYECTO</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:3px">PRECIO VENTA TOTAL</div>
+                <div style="font-size:17px;font-weight:700;color:var(--text)" id="fr-venta-ars">$ —</div>
+                <div style="font-size:12px;color:var(--text3)" id="fr-venta-usd">USD —</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:3px">TOTAL INVERTIDO</div>
+                <div style="font-size:17px;font-weight:700;color:var(--red)" id="fr-inv-ars">$ —</div>
+                <div style="font-size:12px;color:var(--text3)" id="fr-inv-usd">USD —</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:3px">GANANCIA BRUTA</div>
+                <div style="font-size:17px;font-weight:700" id="fr-gan-ars">$ —</div>
+                <div style="font-size:12px;color:var(--text3)" id="fr-gan-usd">USD —</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:3px">AVANCE INVERSIÓN</div>
+                <div style="font-size:17px;font-weight:700;color:var(--blue)" id="fr-avance">—%</div>
+                <div style="font-size:12px;color:var(--text3)">del presupuesto total</div>
+              </div>
+            </div>
+          </div>
+          <!-- Barra de progreso visual -->
+          <div style="padding:14px 16px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:6px">
+              <span>Invertido hasta hoy</span>
+              <span id="fr-pct-label">0%</span>
+            </div>
+            <div style="background:var(--surface2);border-radius:99px;height:10px;overflow:hidden;position:relative">
+              <div id="fr-bar-inv" style="height:100%;background:var(--orange);border-radius:99px;transition:width .5s ease;width:0%"></div>
+              <div id="fr-bar-gan" style="height:100%;background:var(--green);border-radius:99px;transition:width .5s ease;width:0%;position:absolute;right:0;top:0"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:6px">
+              <span style="color:var(--orange)">■ Costo</span>
+              <span style="color:var(--green)">■ Ganancia proyectada</span>
+            </div>
+          </div>
+        </div>
+        <div id="financiero-empty" style="text-align:center;padding:24px;color:var(--text3);font-size:14px;background:var(--surface);border-radius:12px">
+          <div style="font-size:32px;margin-bottom:8px">🏠</div>
+          Agregá las unidades a vender para ver el análisis de rentabilidad
+        </div>
+      </div>
+
+      <div class="ios-section">
+        <div class="ios-section-label">Por rubro</div>
+        <div class="ios-list" id="cat-bars"></div>
+      </div>
+      <div class="ios-section" style="margin-bottom:8px">
+        <div class="ios-section-label">Últimos movimientos</div>
+        <div class="ios-list" id="ult-list"></div>
+      </div>
+    </div>
+
+    <!-- MOVIMIENTOS PAGE -->
+    <div class="page" id="pg-movimientos">
+      <div class="chips-scroll" id="chips-tipo">
+        <button class="chip active" onclick="setChip(this,'tipo','')">Todos</button>
+        <button class="chip" onclick="setChip(this,'tipo','egreso')">Egresos</button>
+        <button class="chip" onclick="setChip(this,'tipo','ingreso')">Ingresos</button>
+        <button class="chip" onclick="setChip(this,'tipo','socio')">👥 Por socio</button>
+      </div>
+      <!-- Filtro fecha -->
+      <div class="chips-scroll" id="chips-fecha" style="padding-top:0">
+        <button class="chip active" onclick="setFecha(this,'')">Todas</button>
+        <button class="chip" onclick="setFecha(this,'mes')">Este mes</button>
+        <button class="chip" onclick="setFecha(this,'trim')">Trimestre</button>
+        <button class="chip" onclick="setFecha(this,'anio')">Este año</button>
+        <button class="chip" onclick="setFecha(this,'ant')">Año anterior</button>
+      </div>
+      <div class="chips-scroll" id="chips-cat" style="padding-top:0"></div>
+      <div id="vista-socio" style="display:none"></div>
+      <div class="ios-list" style="margin:0 16px" id="mov-list"></div>
+      <div id="mov-empty" class="empty-state hidden"><i class="bi bi-inbox"></i><p>Sin movimientos</p></div>
+      <div style="margin:12px 16px;background:var(--surface);border-radius:12px;display:flex;gap:0">
+        <div style="flex:1;padding:12px 16px;border-right:.5px solid var(--sep)"><div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:2px">EGRESOS</div><div style="font-weight:700;color:var(--red);font-size:15px" id="ft-eg">$0</div></div>
+        <div style="flex:1;padding:12px 16px;border-right:.5px solid var(--sep)"><div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:2px">INGRESOS</div><div style="font-weight:700;color:var(--green);font-size:15px" id="ft-ing">$0</div></div>
+        <div style="flex:1;padding:12px 16px"><div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:2px">SALDO</div><div style="font-weight:700;font-size:15px" id="ft-sal">$0</div></div>
+      </div>
+    </div>
+
+    <!-- TAREAS PAGE -->
+    <div class="page" id="pg-tareas">
+      <div class="kanban-tabs" style="margin-top:16px" id="kanban-tabs">
+        <div class="kanban-tab active" onclick="setKanbanTab('pendiente',this)">Pendiente</div>
+        <div class="kanban-tab" onclick="setKanbanTab('en_curso',this)">En Curso</div>
+        <div class="kanban-tab" onclick="setKanbanTab('completada',this)">Listo ✓</div>
+      </div>
+      <div class="ios-list" style="margin:0 16px" id="tareas-list"></div>
+      <div id="tareas-empty" class="empty-state hidden"><i class="bi bi-checkmark-circle"></i><p>Sin tareas aquí</p></div>
+    </div>
+
+    <!-- CASHFLOW PAGE -->
+    <div class="page" id="pg-cashflow">
+      <!-- Selector histórico/proyección -->
+      <div style="display:flex;background:var(--surface2);border-radius:10px;padding:2px;margin:16px 16px 0">
+        <div class="f-seg-btn active" id="cf-tab-hist" onclick="setCfTab('hist',this)" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">Histórico</div>
+        <div class="f-seg-btn" id="cf-tab-proy" onclick="setCfTab('proy',this)" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text3)">Proyección</div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div id="cf-hist">
+        <div class="ios-section">
+          <div class="ios-section-label">Egresos por mes (USD)</div>
+          <div class="ios-list" style="padding:16px">
+            <div class="cf-mes-bar" id="cf-barras-hist"></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3)" id="cf-labels-hist"></div>
+          </div>
+        </div>
+        <div class="ios-section" style="margin-bottom:8px">
+          <div class="ios-section-label">Detalle mensual</div>
+          <div class="ios-list" id="cf-detalle-hist"></div>
+        </div>
+      </div>
+
+      <!-- PROYECCIÓN -->
+      <div id="cf-proy" style="display:none">
+        <div id="cf-necesidad-capital" style="display:none;margin-bottom:16px;margin-top:16px"></div>
+        <div class="ios-section">
+          <div class="ios-section-label">Pagos futuros por mes (USD)</div>
+          <div class="ios-list" style="padding:16px">
+            <div class="cf-mes-bar" id="cf-barras-proy"></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3)" id="cf-labels-proy"></div>
+          </div>
+        </div>
+        <div class="ios-section">
+          <div class="ios-section-label">Etapas pendientes con presupuesto</div>
+          <div class="ios-list" id="cf-etapas-proy"></div>
+        </div>
+        <div class="ios-section" style="margin-bottom:8px">
+          <div class="ios-section-label">Cuotas futuras</div>
+          <div class="ios-list" id="cf-cuotas-proy"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFIL PAGE -->
+    <div class="page" id="pg-perfil">
+      <div class="profile-header">
+        <div class="profile-av" id="profile-av"></div>
+        <div class="profile-name" id="profile-name"></div>
+        <div class="profile-role" id="profile-role"></div>
+      </div>
+      <div class="ios-section">
+        <div class="ios-section-label">Cuenta</div>
+        <div class="ios-list">
+          <div class="ios-row" onclick="exportJSON()">
+            <div class="ios-row-icon" style="background:rgba(0,122,255,.12);color:var(--blue)"><i class="bi bi-arrow-down-circle-fill"></i></div>
+            <div class="ios-row-content"><div class="ios-row-title">Exportar datos</div></div>
+            <div class="ios-row-right"><i class="bi bi-chevron-right ios-chevron"></i></div>
+          </div>
+          <div class="ios-row" onclick="importJSON()">
+            <div class="ios-row-icon" style="background:rgba(52,199,89,.12);color:var(--green)"><i class="bi bi-arrow-up-circle-fill"></i></div>
+            <div class="ios-row-content"><div class="ios-row-title">Importar datos</div></div>
+            <div class="ios-row-right"><i class="bi bi-chevron-right ios-chevron"></i></div>
+          </div>
+        </div>
+      </div>
+      <!-- RUBROS -->
+      <div class="ios-section" id="rubros-section">
+        <div class="ios-section-label">Rubros / Categorías</div>
+        <div class="ios-list" id="rubros-list"></div>
+        <div class="ios-row" style="margin-top:8px;border-radius:12px;background:var(--surface)" id="btn-agregar-rubro" onclick="openNuevoRubro()">
+          <div class="ios-row-icon" style="background:rgba(0,122,255,.12);color:var(--blue)"><i class="bi bi-plus-circle-fill"></i></div>
+          <div class="ios-row-content"><div class="ios-row-title" style="color:var(--blue)">Agregar rubro</div></div>
+        </div>
+      </div>
+
+      <div class="ios-section" id="usuarios-section">
+        <div class="ios-section-label">Usuarios del proyecto</div>
+        <div class="ios-list" id="usuarios-list"></div>
+        <!-- Invitar usuario — solo admin -->
+        <div id="btn-invitar-wrap" style="margin-top:8px">
+          <div class="ios-row" style="border-radius:12px;background:var(--surface)" onclick="openSheet('sheet-invitar')">
+            <div class="ios-row-icon" style="background:rgba(0,122,255,.12);color:var(--blue)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>
+            </div>
+            <div class="ios-row-content"><div class="ios-row-title" style="color:var(--blue)">Invitar usuario</div></div>
+            <i class="bi bi-chevron-right ios-chevron"></i>
+          </div>
+        </div>
+      </div>
+      <div class="ios-section">
+        <div class="ios-section-label">Actividad reciente</div>
+        <div class="ios-list" id="audit-list">
+          <div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Cargando…</div>
+        </div>
+      </div>
+
+      <div class="ios-section" style="margin-bottom:8px">
+        <div class="ios-list">
+          <div class="ios-row" onclick="confirmLogout()" style="justify-content:center">
+            <div style="color:var(--red);font-size:17px;font-weight:400">Cerrar sesión</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-scroll -->
+
+  <!-- TAB BAR -->
+  <div class="tabbar">
+
+    <button class="tab-btn" id="tab-proyectos" onclick="navTo('proyectos',this)">
+      <div class="tab-icon-pill">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+      </div>
+      <span>Proyectos</span>
+    </button>
+
+    <button class="tab-btn" id="tab-dashboard" onclick="navTo('dashboard',this)">
+      <div class="tab-icon-pill">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
+        </svg>
+      </div>
+      <span>Resumen</span>
+    </button>
+
+    <button class="tab-btn" id="tab-movimientos" onclick="navTo('movimientos',this)">
+      <div class="tab-icon-pill">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7 16l-4-4 4-4v3h10V8l4 4-4 4v-3H7v3z"/>
+        </svg>
+      </div>
+      <span>Movim.</span>
+    </button>
+
+    <button class="tab-btn" id="tab-tareas" onclick="navTo('tareas',this)">
+      <div class="tab-icon-pill">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+      </div>
+      <span>Tareas</span>
+    </button>
+
+    <button class="tab-btn" id="tab-cashflow" onclick="navTo('cashflow',this)">
+      <div class="tab-icon-pill">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3.5 18.5l6-6 4 4L22 6.92 20.59 5.5l-7.09 7.97-4-4L2 17l1.5 1.5z"/>
+        </svg>
+      </div>
+      <span>Cashflow</span>
+    </button>
+
+    <button class="tab-btn" id="tab-perfil" onclick="navTo('perfil',this)">
+      <div class="tab-icon-pill">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        </svg>
+      </div>
+      <span>Perfil</span>
+    </button>
+
+  </div>
+
+  <!-- FAB -->
+  <button class="fab hidden" id="fab" onclick="fabAction()"><i class="bi bi-plus"></i></button>
+
+</div><!-- /scr-app -->
+
+<!-- ═══ SHEETS ═══ -->
+
+<!-- Nuevo Movimiento -->
+<div class="sheet-overlay" id="sheet-mov" onclick="closeSheetIf(event,'sheet-mov')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-mov-title">Nuevo movimiento</div>
+    <div class="sheet-body">
+      <input type="hidden" id="sf-edit-idx">
+      <div class="f-group">
+        <label class="f-label">Tipo</label>
+        <div class="f-seg">
+          <div class="f-seg-btn active" id="seg-eg" onclick="setTipoSeg('egreso')">↑ Egreso</div>
+          <div class="f-seg-btn" id="seg-ing" onclick="setTipoSeg('ingreso')">↓ Ingreso</div>
+        </div>
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <label class="f-label">Fecha</label>
+          <input type="date" id="sf-fecha" class="f-input" onchange="onFechaChange()">
+        </div>
+        <div class="f-group">
+          <label class="f-label">Moneda</label>
+          <div class="f-seg">
+            <div class="f-seg-btn active" id="seg-ars" onclick="setMonSeg('ARS')">ARS</div>
+            <div class="f-seg-btn" id="seg-usd" onclick="setMonSeg('USD')">USD</div>
+          </div>
+        </div>
+      </div>
+      <div class="f-group" id="sf-tc-wrap">
+        <label class="f-label">Tipo de cambio del día <span style="color:var(--text3);font-weight:400">(ARS por USD)</span></label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="sf-tc" class="f-input" placeholder="Ej: 1270" min="1" inputmode="decimal" style="flex:1">
+          <button onclick="usarTcGlobal()" style="background:var(--surface2);border:none;border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text3);cursor:pointer;white-space:nowrap">TC global</button>
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Categoría</label>
+        <select id="sf-cat" class="f-input"></select>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Descripción</label>
+        <input type="text" id="sf-desc" class="f-input" placeholder="Proveedor / detalle">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Monto total</label>
+        <input type="number" id="sf-monto" class="f-input" placeholder="0" min="0" inputmode="decimal">
+      </div>
+
+      <!-- DISTRIBUCIÓN PROPORCIONAL -->
+      <div class="f-group">
+        <label class="f-label">¿Cómo se distribuye?</label>
+        <div class="f-seg" style="display:grid;grid-template-columns:repeat(3,1fr)">
+          <div class="f-seg-btn active" id="seg-dist-uno" onclick="setDistribucion('uno')">Uno solo</div>
+          <div class="f-seg-btn" id="seg-dist-igual" onclick="setDistribucion('igual')">Partes iguales</div>
+          <div class="f-seg-btn" id="seg-dist-custom" onclick="setDistribucion('custom')">Personalizado</div>
+        </div>
+      </div>
+      <!-- Uno solo: selector quién -->
+      <div class="f-group" id="sf-dist-uno-wrap">
+        <label class="f-label">Pagado por</label>
+        <select id="sf-quien" class="f-input"></select>
+      </div>
+      <!-- Partes iguales: info automática -->
+      <div id="sf-dist-igual-wrap" style="display:none">
+        <div style="background:rgba(0,122,255,.08);border:1px solid rgba(0,122,255,.15);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--blue)" id="sf-dist-igual-info">
+          Se dividirá en partes iguales entre todos los socios
+        </div>
+      </div>
+      <!-- Custom: montos por persona → % auto -->
+      <div id="sf-dist-custom-wrap" style="display:none">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Ingresá cuánto pone cada uno — el % se calcula solo</div>
+        <div id="sf-porcentajes-list"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px">
+          <span style="color:var(--text3)">Total: <span id="sf-monto-total" style="font-weight:700;color:var(--text)">0</span></span>
+          <span style="color:var(--text3)">Suma: <span id="sf-pct-total" style="font-weight:700;color:var(--blue)">0%</span></span>
+        </div>
+      </div>
+
+      <!-- CUOTAS — oculto en edición -->
+      <div id="sf-cuotas-section">
+        <div class="f-group">
+          <label class="f-label">¿Pago en cuotas?</label>
+          <div class="f-seg">
+            <div class="f-seg-btn active" id="seg-cuota-no" onclick="setCuotas(false)">Pago único</div>
+            <div class="f-seg-btn" id="seg-cuota-si" onclick="setCuotas(true)">En cuotas</div>
+          </div>
+        </div>
+        <div id="sf-cuotas-wrap" style="display:none">
+          <div class="f-row">
+            <div class="f-group">
+              <label class="f-label">Cantidad de cuotas</label>
+              <input type="number" id="sf-ncuotas" class="f-input" value="3" min="2" max="36" inputmode="numeric">
+            </div>
+            <div class="f-group">
+              <label class="f-label">Primera cuota</label>
+              <input type="date" id="sf-primera-cuota" class="f-input">
+            </div>
+          </div>
+          <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text3)">
+            Se crean <span id="sf-cuotas-preview" style="color:var(--blue);font-weight:700">3</span> movimientos, uno por cuota
+          </div>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <label class="f-label">Notas (opcional)</label>
+        <input type="text" id="sf-notas" class="f-input" placeholder="Referencia, número de factura…">
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-full btn-blue-full" id="btn-guardar-mov" onclick="agregarMovWrapper()">Agregar movimiento</button>
+      <button class="btn-full btn-ghost-full" onclick="closeSheet('sheet-mov')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nueva Tarea -->
+<div class="sheet-overlay" id="sheet-tarea" onclick="closeSheetIf(event,'sheet-tarea')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Nueva tarea</div>
+    <div class="sheet-body">
+      <div class="f-group"><label class="f-label">Título</label><input type="text" id="tf-tit" class="f-input" placeholder="Ej: Inspección municipal"></div>
+      <div class="f-group"><label class="f-label">Descripción</label><input type="text" id="tf-desc" class="f-input" placeholder="Notas adicionales"></div>
+      <div class="f-group"><label class="f-label">Vencimiento</label><input type="date" id="tf-ven" class="f-input"></div>
+      <div class="f-group">
+        <label class="f-label">Estado inicial</label>
+        <div class="f-seg">
+          <div class="f-seg-btn active" id="tseg-p" onclick="setTareaEst('pendiente')">Pendiente</div>
+          <div class="f-seg-btn" id="tseg-e" onclick="setTareaEst('en_curso')">En Curso</div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-full btn-blue-full" onclick="agregarTarea()">Agregar tarea</button>
+      <button class="btn-full btn-ghost-full" onclick="closeSheet('sheet-tarea')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nuevo Proyecto -->
+<div class="sheet-overlay" id="sheet-nuevo-proj" onclick="closeSheetIf(event,'sheet-nuevo-proj')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Nuevo proyecto</div>
+    <div class="sheet-body">
+      <div class="f-group"><label class="f-label">Nombre</label><input type="text" id="pf-nombre" class="f-input" placeholder="Ej: Casa Pilar, Depto Palermo…"></div>
+      <div class="f-group"><label class="f-label">Descripción</label><input type="text" id="pf-desc" class="f-input" placeholder="Dirección, tipología, notas…"></div>
+      <div class="f-group">
+        <label class="f-label">Color</label>
+        <div class="color-swatches" id="color-swatches">
+          <div class="color-sw sel" data-color="#007aff" style="background:#007aff" onclick="selColor(this)"></div>
+          <div class="color-sw" data-color="#34c759" style="background:#34c759" onclick="selColor(this)"></div>
+          <div class="color-sw" data-color="#ff9500" style="background:#ff9500" onclick="selColor(this)"></div>
+          <div class="color-sw" data-color="#ff3b30" style="background:#ff3b30" onclick="selColor(this)"></div>
+          <div class="color-sw" data-color="#af52de" style="background:#af52de" onclick="selColor(this)"></div>
+          <div class="color-sw" data-color="#5856d6" style="background:#5856d6" onclick="selColor(this)"></div>
+          <div class="color-sw" data-color="#ff2d55" style="background:#ff2d55" onclick="selColor(this)"></div>
+          <div class="color-sw" data-color="#5ac8fa" style="background:#5ac8fa" onclick="selColor(this)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-full btn-blue-full" onclick="crearProyecto()">Crear proyecto</button>
+      <button class="btn-full btn-ghost-full" onclick="closeSheet('sheet-nuevo-proj')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet Nuevo/Editar Rubro -->
+<div class="sheet-overlay" id="sheet-rubro" onclick="closeSheetIf(event,'sheet-rubro')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-rubro-title">Nuevo rubro</div>
+    <div class="sheet-body">
+      <input type="hidden" id="rf-edit-key">
+      <div class="f-group"><label class="f-label">Nombre del rubro</label><input type="text" id="rf-nombre" class="f-input" placeholder="Ej: Plomería, Ascensor, Cerrajería…"></div>
+      <div class="f-group">
+        <label class="f-label">Ícono (emoji)</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="emoji-picker">
+          <span class="emoji-opt" onclick="selEmoji(this)">🔨</span><span class="emoji-opt" onclick="selEmoji(this)">🧱</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">⚡</span><span class="emoji-opt" onclick="selEmoji(this)">🚿</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">🔥</span><span class="emoji-opt" onclick="selEmoji(this)">📋</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">🎨</span><span class="emoji-opt" onclick="selEmoji(this)">🪟</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">🏛️</span><span class="emoji-opt" onclick="selEmoji(this)">⚙️</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">🪚</span><span class="emoji-opt" onclick="selEmoji(this)">🚜</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">🛋️</span><span class="emoji-opt" onclick="selEmoji(this)">❄️</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">🔧</span><span class="emoji-opt" onclick="selEmoji(this)">🧹</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">🚛</span><span class="emoji-opt" onclick="selEmoji(this)">📦</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">🏗️</span><span class="emoji-opt" onclick="selEmoji(this)">🔩</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">🪣</span><span class="emoji-opt" onclick="selEmoji(this)">🏠</span>
+          <span class="emoji-opt" onclick="selEmoji(this)">💡</span><span class="emoji-opt" onclick="selEmoji(this)">🌿</span>
+        </div>
+        <input type="text" id="rf-icon" class="f-input" style="margin-top:10px;font-size:24px;text-align:center" placeholder="o escribí cualquier emoji" maxlength="4">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Color</label>
+        <div class="color-swatches" id="rubro-color-swatches">
+          <div class="color-sw sel" data-color="#ff9500" style="background:#ff9500" onclick="selRubroColor(this)"></div>
+          <div class="color-sw" data-color="#007aff" style="background:#007aff" onclick="selRubroColor(this)"></div>
+          <div class="color-sw" data-color="#34c759" style="background:#34c759" onclick="selRubroColor(this)"></div>
+          <div class="color-sw" data-color="#ff3b30" style="background:#ff3b30" onclick="selRubroColor(this)"></div>
+          <div class="color-sw" data-color="#af52de" style="background:#af52de" onclick="selRubroColor(this)"></div>
+          <div class="color-sw" data-color="#5856d6" style="background:#5856d6" onclick="selRubroColor(this)"></div>
+          <div class="color-sw" data-color="#ff2d55" style="background:#ff2d55" onclick="selRubroColor(this)"></div>
+          <div class="color-sw" data-color="#5ac8fa" style="background:#5ac8fa" onclick="selRubroColor(this)"></div>
+          <div class="color-sw" data-color="#ffcc00" style="background:#ffcc00" onclick="selRubroColor(this)"></div>
+          <div class="color-sw" data-color="#8e8e93" style="background:#8e8e93" onclick="selRubroColor(this)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-full btn-blue-full" onclick="guardarRubro()">Guardar rubro</button>
+      <button class="btn-full btn-ghost-full" onclick="closeSheet('sheet-rubro')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet Invitar Usuario -->
+<div class="sheet-overlay" id="sheet-invitar" onclick="closeSheetIf(event,'sheet-invitar')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Invitar usuario</div>
+    <div class="sheet-body">
+      <div class="f-group">
+        <label class="f-label">Email Gmail</label>
+        <input type="email" id="inv-email" class="f-input" placeholder="amigo@gmail.com" inputmode="email">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Nombre (opcional)</label>
+        <input type="text" id="inv-nombre" class="f-input" placeholder="Ej: Martín">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Rol</label>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <div class="role-opt-row" onclick="selRolInv('admin')" id="rol-opt-admin">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px;background:var(--surface2);border-radius:12px;border:2px solid transparent;cursor:pointer" id="rol-opt-admin-inner">
+              <div style="width:38px;height:38px;border-radius:10px;background:rgba(0,122,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px">👑</div>
+              <div>
+                <div style="font-size:15px;font-weight:600">Admin</div>
+                <div style="font-size:12px;color:var(--text3)">Acceso total · puede borrar y gestionar usuarios</div>
+              </div>
+            </div>
+          </div>
+          <div onclick="selRolInv('socio')" id="rol-opt-socio">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px;background:var(--surface2);border-radius:12px;border:2px solid var(--blue);cursor:pointer" id="rol-opt-socio-inner">
+              <div style="width:38px;height:38px;border-radius:10px;background:rgba(52,199,89,.12);display:flex;align-items:center;justify-content:center;font-size:18px">🤝</div>
+              <div>
+                <div style="font-size:15px;font-weight:600">Socio</div>
+                <div style="font-size:12px;color:var(--text3)">Carga movimientos y tareas · no borra</div>
+              </div>
+            </div>
+          </div>
+          <div onclick="selRolInv('viewer')" id="rol-opt-viewer">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px;background:var(--surface2);border-radius:12px;border:2px solid transparent;cursor:pointer" id="rol-opt-viewer-inner">
+              <div style="width:38px;height:38px;border-radius:10px;background:rgba(142,142,147,.12);display:flex;align-items:center;justify-content:center;font-size:18px">👁️</div>
+              <div>
+                <div style="font-size:15px;font-weight:600">Viewer</div>
+                <div style="font-size:12px;color:var(--text3)">Solo lectura · no puede modificar nada</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-full btn-blue-full" onclick="invitarUsuario()">Agregar usuario</button>
+      <button class="btn-full btn-ghost-full" onclick="closeSheet('sheet-invitar')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet Nueva Unidad -->
+<div class="sheet-overlay" id="sheet-unidad" onclick="closeSheetIf(event,'sheet-unidad')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-unidad-title">Nueva unidad</div>
+    <div class="sheet-body">
+      <input type="hidden" id="uf-edit-idx">
+      <div class="f-group">
+        <label class="f-label">Nombre de la unidad</label>
+        <input type="text" id="uf-nombre" class="f-input" placeholder="Ej: Casa 1, Depto A, Lote 2…">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Moneda del precio de venta</label>
+        <div class="f-seg">
+          <div class="f-seg-btn" id="uf-seg-ars" onclick="setUnidadMon('ARS')">ARS $</div>
+          <div class="f-seg-btn active" id="uf-seg-usd" onclick="setUnidadMon('USD')">USD</div>
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Precio objetivo de venta</label>
+        <input type="number" id="uf-precio" class="f-input" placeholder="0" min="0" inputmode="decimal">
+      </div>
+      <div class="f-group" id="uf-tc-wrap">
+        <label class="f-label">Tipo de cambio para convertir <span style="color:var(--text3);font-weight:400">(si precio en ARS)</span></label>
+        <input type="number" id="uf-tc" class="f-input" placeholder="Ej: 1270" min="1" inputmode="decimal">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Notas (opcional)</label>
+        <input type="text" id="uf-notas" class="f-input" placeholder="Ej: 3 amb, 120m², cochera…">
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-full btn-blue-full" onclick="guardarUnidad()">Guardar unidad</button>
+      <button class="btn-full btn-ghost-full" onclick="closeSheet('sheet-unidad')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet Etapa de Obra -->
+<div class="sheet-overlay" id="sheet-etapa" onclick="closeSheetIf(event,'sheet-etapa')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-etapa-title">Nueva etapa</div>
+    <div class="sheet-body">
+      <input type="hidden" id="ef-edit-idx">
+      <div class="f-group">
+        <label class="f-label">Nombre de la etapa</label>
+        <select id="ef-nombre" class="f-input">
+          <option>Demolición y limpieza</option>
+          <option>Estructura y cimientos</option>
+          <option>Mampostería</option>
+          <option>Cerramientos</option>
+          <option>Instalaciones eléctricas</option>
+          <option>Instalaciones sanitarias</option>
+          <option>Gas</option>
+          <option>Revoques y contrapisos</option>
+          <option>Revestimientos y pisos</option>
+          <option>Carpintería</option>
+          <option>Pintura</option>
+          <option>Terminaciones</option>
+          <option>Paisajismo</option>
+          <option>Otra…</option>
+        </select>
+      </div>
+      <div class="f-group" id="ef-custom-wrap" style="display:none">
+        <label class="f-label">Nombre personalizado</label>
+        <input type="text" id="ef-custom" class="f-input" placeholder="Nombre de la etapa">
+      </div>
+      <div class="f-group">
+        <label class="f-label">% de avance</label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input type="range" id="ef-pct" min="0" max="100" step="5" value="0"
+            style="flex:1;accent-color:var(--blue)"
+            oninput="document.getElementById('ef-pct-val').textContent=this.value+'%'">
+          <span id="ef-pct-val" style="font-size:17px;font-weight:700;color:var(--blue);min-width:44px;text-align:right">0%</span>
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Estado</label>
+        <div class="f-seg" style="display:grid;grid-template-columns:repeat(3,1fr)">
+          <div class="f-seg-btn active" id="ef-est-pend" onclick="setEtapaEst('pendiente')">Pendiente</div>
+          <div class="f-seg-btn" id="ef-est-curso" onclick="setEtapaEst('en_curso')">En curso</div>
+          <div class="f-seg-btn" id="ef-est-ok" onclick="setEtapaEst('completada')">Lista ✓</div>
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Notas</label>
+        <input type="text" id="ef-notas" class="f-input" placeholder="Observaciones, pendientes…">
+      </div>
+      <!-- PRESUPUESTO DE ETAPA -->
+      <div class="f-group">
+        <label class="f-label">Presupuesto estimado <span style="color:var(--text3);font-weight:400">(opcional)</span></label>
+        <div class="f-row">
+          <div class="f-seg" style="flex:0 0 auto">
+            <div class="f-seg-btn" id="ef-mon-ars" onclick="setEtapaMon('ARS')">ARS</div>
+            <div class="f-seg-btn active" id="ef-mon-usd" onclick="setEtapaMon('USD')">USD</div>
+          </div>
+          <input type="number" id="ef-presup" class="f-input" placeholder="0" min="0" inputmode="decimal">
+        </div>
+      </div>
+      <!-- CUOTAS DE PAGO -->
+      <div class="f-group">
+        <label class="f-label">¿Se paga en cuotas?</label>
+        <div class="f-seg">
+          <div class="f-seg-btn active" id="ef-cuota-no" onclick="setEtapaCuotas(false)">Pago único</div>
+          <div class="f-seg-btn" id="ef-cuota-si" onclick="setEtapaCuotas(true)">En cuotas</div>
+        </div>
+      </div>
+      <div id="ef-cuotas-wrap" style="display:none">
+        <div class="f-row">
+          <div class="f-group">
+            <label class="f-label">Cantidad de cuotas</label>
+            <input type="number" id="ef-ncuotas" class="f-input" value="3" min="2" max="36" inputmode="numeric">
+          </div>
+          <div class="f-group">
+            <label class="f-label">Fecha inicio pago</label>
+            <input type="date" id="ef-fecha-inicio" class="f-input">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-full btn-blue-full" onclick="guardarEtapa()">Guardar etapa</button>
+      <button class="btn-full btn-ghost-full" onclick="closeSheet('sheet-etapa')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet Comparativo Proyectos -->
+<div class="sheet-overlay" id="sheet-comparativo" onclick="closeSheetIf(event,'sheet-comparativo')">
+  <div class="sheet" style="max-height:85vh">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Comparativo de proyectos</div>
+    <div class="sheet-body" id="comparativo-body" style="padding-bottom:8px"></div>
+    <div class="sheet-footer">
+      <button class="btn-full btn-ghost-full" onclick="closeSheet('sheet-comparativo')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════ SUPABASE CONFIG ══════════════
+const SUPABASE_URL  = 'https://fgzmgtqpmkefuwermxkv.supabase.co'
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnem1ndHFwbWtlZnV3ZXJteGt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMTA5MzgsImV4cCI6MjA5Mjc4NjkzOH0.I7FJPEv7raStMFsXzEelHaIQII085bPn7HthWyk091g'
+
+// Cliente Supabase liviano (sin SDK, fetch directo)
+const sbHeaders = () => ({
+  'apikey': SUPABASE_ANON,
+  'Authorization': 'Bearer ' + (currentUser?._token || SUPABASE_ANON),
+  'Content-Type': 'application/json'
+})
+
+async function loginConGoogle() {
+  const redirectTo = window.location.origin + window.location.pathname
+  const url = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`
+  window.location.href = url
+}
+
+async function checkSession() {
+  // Verificar si hay token en la URL (callback de OAuth)
+  const hash = window.location.hash
+  if (hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.replace('#', ''))
+    const token = params.get('access_token')
+    const email = JSON.parse(atob(token.split('.')[1])).email
+    const name  = email.split('@')[0]
+    // Limpiar URL
+    window.history.replaceState({}, '', window.location.pathname)
+    return { email, nombre: name, rol: 'admin', av: name.substring(0,2).toUpperCase(), avBg:'rgba(0,122,255,.12)', avCol:'#007aff', _token: token }
+  }
+  return null
+}
+
+// ══════════════ CONSTANTS ══════════════
+const SF = '-apple-system, BlinkMacSystemFont, "SF Pro Display"';
+
+// Rubros base (se pueden ampliar por proyecto)
+const RUBROS_BASE = [
+  {key:'Mano de Obra',    icon:'🔨', color:'#ff9500'},
+  {key:'Materiales',      icon:'🧱', color:'#007aff'},
+  {key:'Electricidad',    icon:'⚡', color:'#ffcc00'},
+  {key:'Sanitarios',      icon:'🚿', color:'#34c759'},
+  {key:'Gas',             icon:'🔥', color:'#af52de'},
+  {key:'Trámites / Municipio', icon:'📋', color:'#5856d6'},
+  {key:'Pintura',         icon:'🎨', color:'#ff2d55'},
+  {key:'Revestimientos',  icon:'🪟', color:'#5ac8fa'},
+  {key:'Mármol / Mesadas',icon:'🏛️', color:'#af52de'},
+  {key:'Herrería',        icon:'⚙️', color:'#34c759'},
+  {key:'Durlock / Cielorrasos', icon:'🏠', color:'#007aff'},
+  {key:'Carpintería',     icon:'🪚', color:'#ff9500'},
+  {key:'Movimiento de Suelo', icon:'🚜', color:'#ff3b30'},
+  {key:'Muebles',         icon:'🛋️', color:'#5ac8fa'},
+  {key:'Aire Acondicionado', icon:'❄️', color:'#8e8e93'},
+  {key:'Zinquería',       icon:'🔩', color:'#34c759'},
+  {key:'Ferretería',      icon:'🔧', color:'#ff9500'},
+  {key:'Limpieza',        icon:'🧹', color:'#ff2d55'},
+  {key:'Volquete',        icon:'🚛', color:'#8e8e93'},
+  {key:'Otros',           icon:'📦', color:'#8e8e93'},
+];
+
+// Helpers dinámicos — leen del proyecto activo
+const getCats  = () => (proj()?.rubros || RUBROS_BASE).filter(r => !r.inactivo);
+const getAllCats = () => proj()?.rubros || RUBROS_BASE;
+const catIcon  = key => { const r = getAllCats().find(r=>r.key===key); return r?.icon || '📦'; };
+const catColor = key => { const r = getAllCats().find(r=>r.key===key); return r?.color || '#8e8e93'; };
+const DEMO_USERS = {
+  admin:  {nombre:'Sebas',email:'sebas@gruposimpa.com',rol:'admin',av:'SB',avBg:'rgba(0,122,255,.12)',avCol:'#007aff'},
+  socio:  {nombre:'Martín R.',email:'martin@gmail.com',rol:'socio',av:'MR',avBg:'rgba(52,199,89,.12)',avCol:'#34c759'},
+  viewer: {nombre:'Ana G.',email:'ana@gmail.com',rol:'viewer',av:'AG',avBg:'rgba(142,142,147,.12)',avCol:'#8e8e93'},
+};
+const PDF_DATA = [
+  {fecha:'2025-11-12',tipo:'egreso',cat:'Mano de Obra',desc:'German Fernandez - Contratista',moneda:'ARS',monto:15000},
+  {fecha:'2025-12-03',tipo:'egreso',cat:'Mano de Obra',desc:'German Fernandez - Contratista',moneda:'ARS',monto:180000},
+  {fecha:'2025-12-17',tipo:'egreso',cat:'Mano de Obra',desc:'German Fernandez - Contratista',moneda:'ARS',monto:150000},
+  {fecha:'2026-01-10',tipo:'egreso',cat:'Mano de Obra',desc:'German Fernandez - Contratista',moneda:'ARS',monto:605000},
+  {fecha:'2026-04-10',tipo:'egreso',cat:'Mano de Obra',desc:'German Fernandez - Contratista',moneda:'ARS',monto:745000},
+  {fecha:'2025-12-16',tipo:'egreso',cat:'Materiales',desc:'Mat Yrigoyen (1000 USD)',moneda:'ARS',monto:195624},
+  {fecha:'2026-02-17',tipo:'egreso',cat:'Materiales',desc:'Mat Yrigoyen (5000 USD)',moneda:'ARS',monto:1012500},
+  {fecha:'2026-05-21',tipo:'egreso',cat:'Materiales',desc:'PROTEX - pegamento',moneda:'ARS',monto:1001250},
+  {fecha:'2025-12-12',tipo:'egreso',cat:'Electricidad',desc:'Pucciarelli - Termicas',moneda:'ARS',monto:1075830},
+  {fecha:'2026-01-10',tipo:'egreso',cat:'Electricidad',desc:'Portero electrico x2',moneda:'ARS',monto:300000},
+  {fecha:'2025-12-09',tipo:'egreso',cat:'Sanitarios',desc:'SunGreen - termo solar',moneda:'ARS',monto:1720360},
+  {fecha:'2026-01-03',tipo:'egreso',cat:'Sanitarios',desc:'ClimaEscobar - Radiadores',moneda:'ARS',monto:2925940},
+  {fecha:'2025-05-10',tipo:'egreso',cat:'Gas',desc:'Matriculado - Raúl',moneda:'ARS',monto:90000},
+  {fecha:'2026-03-19',tipo:'egreso',cat:'Gas',desc:'Matriculado - Raúl',moneda:'ARS',monto:400000},
+  {fecha:'2025-07-20',tipo:'egreso',cat:'Trámites / Municipio',desc:'CAPBA',moneda:'ARS',monto:207345},
+  {fecha:'2025-08-29',tipo:'egreso',cat:'Trámites / Municipio',desc:'ARBA',moneda:'ARS',monto:457655},
+  {fecha:'2025-12-05',tipo:'egreso',cat:'Trámites / Municipio',desc:'Derechos Construcción',moneda:'ARS',monto:463000},
+  {fecha:'2026-07-06',tipo:'egreso',cat:'Pintura',desc:'Textura Exterior',moneda:'ARS',monto:1060000},
+  {fecha:'2026-07-18',tipo:'egreso',cat:'Pintura',desc:'VARGAS - Pintor',moneda:'ARS',monto:350000},
+  {fecha:'2026-08-20',tipo:'egreso',cat:'Pintura',desc:'Pintor Julian',moneda:'ARS',monto:1800000},
+  {fecha:'2026-02-01',tipo:'egreso',cat:'Revestimientos',desc:'Porcell - Pisos y baños',moneda:'ARS',monto:7925375},
+  {fecha:'2026-06-10',tipo:'egreso',cat:'Mármol / Mesadas',desc:'TECNOCUARZ - Mesadas',moneda:'ARS',monto:1000000},
+  {fecha:'2026-07-10',tipo:'egreso',cat:'Mármol / Mesadas',desc:'TECNOCUARZ - PA',moneda:'ARS',monto:1500000},
+  {fecha:'2025-10-17',tipo:'egreso',cat:'Herrería',desc:'KIKO - Portones',moneda:'ARS',monto:1210000},
+  {fecha:'2025-12-18',tipo:'egreso',cat:'Herrería',desc:'KIKO - Portones',moneda:'ARS',monto:1617000},
+  {fecha:'2026-03-27',tipo:'egreso',cat:'Herrería',desc:'KIKO - Gabinete AC',moneda:'ARS',monto:1290000},
+  {fecha:'2025-07-17',tipo:'egreso',cat:'Durlock / Cielorrasos',desc:'Durlock - Cielorrasos',moneda:'ARS',monto:367316},
+  {fecha:'2026-04-12',tipo:'egreso',cat:'Carpintería',desc:'EXTRPALCK - Puertas int.',moneda:'ARS',monto:391331},
+  {fecha:'2026-06-19',tipo:'egreso',cat:'Movimiento de Suelo',desc:'Gaston - Nivelación',moneda:'ARS',monto:300000},
+  {fecha:'2025-07-05',tipo:'egreso',cat:'Muebles',desc:'RACADAFE',moneda:'ARS',monto:495000},
+  {fecha:'2026-02-08',tipo:'egreso',cat:'Aire Acondicionado',desc:'Martin Coronel',moneda:'ARS',monto:190000},
+  {fecha:'2025-11-22',tipo:'egreso',cat:'Zinquería',desc:'Zing Fleming',moneda:'ARS',monto:40000},
+  {fecha:'2025-11-10',tipo:'egreso',cat:'Ferretería',desc:'Ferrinox - bisagras',moneda:'ARS',monto:2400},
+  {fecha:'2026-04-01',tipo:'egreso',cat:'Limpieza',desc:'Gladys - Limpieza',moneda:'ARS',monto:508000},
+  {fecha:'2025-12-03',tipo:'egreso',cat:'Volquete',desc:'Volquete',moneda:'ARS',monto:20000},
+  {fecha:'2026-01-10',tipo:'ingreso',cat:'Otros',desc:'Aporte inicial - Sebas',moneda:'USD',monto:50000},
+  {fecha:'2026-06-01',tipo:'ingreso',cat:'Otros',desc:'Aporte - Martín R.',moneda:'USD',monto:30000},
+];
+
+// ══════════════ STATE ══════════════
+let S = {
+  proyectos: [],
+  currentProjId: null,
+  tc: 1270,
+};
+
+let currentUser = null;
+let currentPage = 'proyectos';
+let selectedColor = '#007aff';
+let filterTipo = '';
+let filterCat = '';
+let filterDate = '';  // '', 'mes', 'trim', 'anio', 'ant'
+
+function setFecha(el, val) {
+  filterDate = val;
+  document.querySelectorAll('#chips-fecha .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderMovimientos();
+}
+
+function getDateRange() {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  if (filterDate === 'mes')  return [new Date(y, m, 1), new Date(y, m+1, 0)];
+  if (filterDate === 'trim') return [new Date(y, Math.floor(m/3)*3, 1), new Date(y, Math.floor(m/3)*3+3, 0)];
+  if (filterDate === 'anio') return [new Date(y, 0, 1), new Date(y, 11, 31)];
+  if (filterDate === 'ant')  return [new Date(y-1, 0, 1), new Date(y-1, 11, 31)];
+  return null;
+}
+
+// ── Margen objetivo ──
+function getMargenObj() {
+  return parseFloat(localStorage.getItem('margen-obj') || '25');
+}
+function editarMargenObj() {
+  const actual = getMargenObj();
+  const nuevo = prompt(`Margen objetivo (%)\nActual: ${actual}%`, actual);
+  if (nuevo === null) return;
+  const val = parseFloat(nuevo);
+  if (isNaN(val) || val <= 0 || val >= 100) { showToast('Valor inválido'); return; }
+  localStorage.setItem('margen-obj', val);
+  document.getElementById('margen-obj-label').textContent = `obj: ${val}%`;
+  renderFinanciero();
+}
+
+// ── Supabase Realtime ──
+let realtimeChannel = null;
+async function iniciarRealtime() {
+  if (!currentUser?._token || realtimeChannel) return;
+  // Conectar via SSE a Supabase Realtime
+  const projId = proj()?.id;
+  if (!projId) return;
+  const url = `${SUPABASE_URL}/realtime/v1/websocket?apikey=${SUPABASE_ANON}&vsn=1.0.0`;
+  try {
+    const ws = new WebSocket(url.replace('https','wss').replace('http','ws'));
+    realtimeChannel = ws;
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ topic: `realtime:public:movimientos:proyecto_id=eq.${projId}`, event: 'phx_join', payload: { access_token: currentUser._token }, ref: '1' }));
+      ws.send(JSON.stringify({ topic: `realtime:public:tareas:proyecto_id=eq.${projId}`, event: 'phx_join', payload: { access_token: currentUser._token }, ref: '2' }));
+    };
+    ws.onmessage = async (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.event === 'INSERT' || msg.event === 'UPDATE' || msg.event === 'DELETE') {
+        const table = msg.topic?.split(':')?.[2];
+        if (table === 'movimientos' || table === 'tareas') {
+          // Recargar solo el proyecto activo
+          showToast('🔄 Cambio detectado — actualizando…');
+          await recargarProyectoActual();
+        }
+      }
+      // Heartbeat
+      if (msg.event === 'phx_reply' && msg.payload?.status === 'ok') {}
+      if (msg.event === 'heartbeat') ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: null }));
+    };
+    ws.onerror = () => { realtimeChannel = null; };
+    ws.onclose = () => {
+      realtimeChannel = null;
+      // Reconectar en 5 segundos si la sesión sigue activa
+      if (currentUser) setTimeout(iniciarRealtime, 5000);
+    };
+  } catch(e) { console.warn('Realtime no disponible:', e); }
+}
+
+async function recargarProyectoActual() {
+  const p = proj(); if (!p) return;
+  try {
+    const [mov, tareas] = await Promise.all([
+      sb(`movimientos?proyecto_id=eq.${p.id}&order=fecha.asc`),
+      sb(`tareas?proyecto_id=eq.${p.id}&order=created_at.asc`),
+    ]);
+    p.mov = mov.map(m => ({ ...m, desc: m.descripcion }));
+    p.tareas = tareas.map(t => ({ id: t.id, tit: t.titulo, desc: t.descripcion || '', est: t.estado, ven: t.vencimiento }));
+    recalcAll(); renderMovimientos(); renderTareas();
+  } catch(e) { console.warn('Error recargando:', e); }
+}
+let kanbanTab = 'pendiente';
+let newMovTipo = 'egreso';
+let newMovMon = 'ARS';
+let newTareaEst = 'pendiente';
+let taskSeq = 100;
+
+// ══════════════ HELPERS ══════════════
+const proj = () => S.proyectos.find(p => p.id === S.currentProjId) || S.proyectos[0];
+const getTc = () => parseInt(document.getElementById('tc').value) || 1270;
+const toARS = m => m.moneda === 'USD' ? m.monto * (m.tc || getTc()) : m.monto;
+const toUSDval = m => m.moneda === 'USD' ? m.monto : m.monto / (m.tc || getTc());
+const fARS = n => '$ ' + Math.round(n).toLocaleString('es-AR');
+const fUSD = n => 'USD ' + Math.round(n / getTc()).toLocaleString('es-AR');
+const hoy = () => new Date().toISOString().split('T')[0];
+const canEdit = () => currentUser?.rol !== 'viewer';
+const canDelete = () => currentUser?.rol === 'admin';
+
+// TC persiste en localStorage (no en Supabase, es preferencia local)
+const saveTc = () => localStorage.setItem('obratrack-tc', getTc());
+const loadTc = () => { const tc = localStorage.getItem('obratrack-tc'); if (tc) document.getElementById('tc').value = tc; };
+
+// ══════════════ SUPABASE DB ══════════════
+const sb = async (path, opts = {}) => {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: { ...sbHeaders(), 'Prefer': opts.prefer || 'return=representation', ...(opts.headers||{}) },
+    method: opts.method || 'GET',
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  if (!res.ok) { const err = await res.text(); console.error('SB error:', err); throw new Error(err); }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+};
+
+// ── Proyectos ──
+async function dbCargarProyectos() {
+  // Cargo proyectos donde el usuario es miembro
+  const pus = await sb(`proyecto_usuarios?email=ilike.${encodeURIComponent(currentUser.email)}&select=proyecto_id,rol`);
+  if (!pus.length) return [];
+  const ids = pus.map(pu => pu.proyecto_id);
+  const proyectos = await sb(`proyectos?id=in.(${ids.join(',')})&order=created_at.asc`);
+  // Para cada proyecto cargo mov, tareas, etapas, usuarios
+  const completos = await Promise.all(proyectos.map(async p => {
+    const [mov, tareas, etapas, usuarios] = await Promise.all([
+      sb(`movimientos?proyecto_id=eq.${p.id}&order=fecha.asc`),
+      sb(`tareas?proyecto_id=eq.${p.id}&order=created_at.asc`),
+      sb(`etapas?proyecto_id=eq.${p.id}&order=created_at.asc`),
+      sb(`proyecto_usuarios?proyecto_id=eq.${p.id}`),
+    ]);
+    // Mapear campos de BD a formato interno
+    return {
+      id: p.id,
+      nombre: p.nombre,
+      desc: p.descripcion || '',
+      color: p.color || '#007aff',
+      presup: p.presup || {},
+      unidades: p.unidades || [],
+      rubros: p.rubros || null,
+      mov: mov.map(m => ({
+        ...m,
+        desc: m.descripcion,
+        est: m.estado,
+        tit: m.titulo,
+      })),
+      tareas: tareas.map(t => ({
+        id: t.id, tit: t.titulo, desc: t.descripcion || '',
+        est: t.estado, ven: t.vencimiento,
+      })),
+      etapas: etapas.map(e => ({
+        id: e.id, nombre: e.nombre, pct: e.pct,
+        est: e.estado, notas: e.notas || '',
+        presup: e.presup || 0, presupMon: e.presup_mon || 'USD',
+        cuotas: e.cuotas || null,
+      })),
+      usuarios: usuarios.map(u => ({
+        nombre: u.nombre || u.email.split('@')[0],
+        email: u.email, rol: u.rol, estado: 'activo',
+      })),
+    };
+  }));
+  return completos;
+}
+
+async function dbCrearProyecto(p) {
+  const [nuevo] = await sb('proyectos', {
+    method: 'POST',
+    body: { nombre: p.nombre, descripcion: p.desc, color: p.color, presup: p.presup || {}, unidades: p.unidades || [], created_by: currentUser.email },
+  });
+  // Agregar usuario creador como admin
+  await sb('proyecto_usuarios', {
+    method: 'POST',
+    prefer: 'return=minimal',
+    body: { proyecto_id: nuevo.id, email: currentUser.email, nombre: currentUser.nombre, rol: 'admin' },
+  });
+  // Agregar admin fijo si es distinto
+  if (currentUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    await sb('proyecto_usuarios', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: { proyecto_id: nuevo.id, email: ADMIN_EMAIL, nombre: 'Sebas', rol: 'admin' },
+    }).catch(() => {});
+  }
+  return nuevo;
+}
+
+async function dbActualizarProyecto(p) {
+  await sb(`proyectos?id=eq.${p.id}`, {
+    method: 'PATCH',
+    prefer: 'return=minimal',
+    body: { nombre: p.nombre, descripcion: p.desc, color: p.color, presup: p.presup, unidades: p.unidades, rubros: p.rubros },
+  });
+}
+
+async function dbEliminarProyecto(id) {
+  await sb(`proyectos?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+}
+
+// ── Movimientos ──
+async function dbAgregarMov(proyId, m) {
+  const [nuevo] = await sb('movimientos', {
+    method: 'POST',
+    body: {
+      proyecto_id: proyId, fecha: m.fecha, tipo: m.tipo, cat: m.cat,
+      descripcion: m.desc, moneda: m.moneda, monto: m.monto, tc: m.tc,
+      quien: m.quien, distribucion: m.distribucion, notas: m.notas,
+      anulado: m.anulado || false, cuota: m.cuota || null,
+      created_by: currentUser.email,
+    },
+  });
+  return nuevo;
+}
+
+async function dbActualizarMov(m) {
+  await sb(`movimientos?id=eq.${m.id}`, {
+    method: 'PATCH',
+    prefer: 'return=minimal',
+    body: {
+      fecha: m.fecha, tipo: m.tipo, cat: m.cat, descripcion: m.desc,
+      moneda: m.moneda, monto: m.monto, tc: m.tc, quien: m.quien,
+      distribucion: m.distribucion, notas: m.notas, anulado: m.anulado,
+    },
+  });
+}
+
+async function dbEliminarMov(id) {
+  await sb(`movimientos?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+}
+
+// ── Tareas ──
+async function dbAgregarTarea(proyId, t) {
+  const [nueva] = await sb('tareas', {
+    method: 'POST',
+    body: { proyecto_id: proyId, titulo: t.tit, descripcion: t.desc, estado: t.est, vencimiento: t.ven || null, created_by: currentUser.email },
+  });
+  return nueva;
+}
+
+async function dbActualizarTarea(t) {
+  await sb(`tareas?id=eq.${t.id}`, {
+    method: 'PATCH', prefer: 'return=minimal',
+    body: { titulo: t.tit, descripcion: t.desc, estado: t.est, vencimiento: t.ven || null },
+  });
+}
+
+async function dbEliminarTarea(id) {
+  await sb(`tareas?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+}
+
+// ── Etapas ──
+async function dbAgregarEtapa(proyId, e) {
+  const [nueva] = await sb('etapas', {
+    method: 'POST',
+    body: {
+      proyecto_id: proyId, nombre: e.nombre, pct: e.pct,
+      estado: e.est, notas: e.notas,
+      presup: e.presup || 0, presup_mon: e.presupMon || 'USD',
+      cuotas: e.cuotas || null,
+      created_by: currentUser.email
+    },
+  });
+  return nueva;
+}
+
+async function dbActualizarEtapa(e) {
+  await sb(`etapas?id=eq.${e.id}`, {
+    method: 'PATCH', prefer: 'return=minimal',
+    body: {
+      nombre: e.nombre, pct: e.pct, estado: e.est, notas: e.notas,
+      presup: e.presup || 0, presup_mon: e.presupMon || 'USD',
+      cuotas: e.cuotas || null
+    },
+  });
+}
+
+async function dbEliminarEtapa(id) {
+  await sb(`etapas?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+}
+
+// ── Usuarios proyecto ──
+async function dbInvitarUsuario(proyId, u) {
+  await sb('proyecto_usuarios', {
+    method: 'POST', prefer: 'return=minimal',
+    body: { proyecto_id: proyId, email: u.email, nombre: u.nombre, rol: u.rol },
+  });
+}
+
+async function dbCambiarRol(proyId, email, rol) {
+  await sb(`proyecto_usuarios?proyecto_id=eq.${proyId}&email=eq.${encodeURIComponent(email)}`, {
+    method: 'PATCH', prefer: 'return=minimal',
+    body: { rol },
+  });
+}
+
+async function dbQuitarUsuario(proyId, email) {
+  await sb(`proyecto_usuarios?proyecto_id=eq.${proyId}&email=eq.${encodeURIComponent(email)}`, {
+    method: 'DELETE', prefer: 'return=minimal',
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 2200);
+}
+
+function showLoading(msg = 'Cargando…') {
+  let el = document.getElementById('loading-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loading-overlay';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-family:var(--sf);font-size:15px;color:var(--text2)';
+    el.innerHTML = `<div style="width:32px;height:32px;border:3px solid var(--surface3);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite"></div><span id="loading-msg">${msg}</span>`;
+    document.body.appendChild(el);
+    const style = document.createElement('style');
+    style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+  } else {
+    document.getElementById('loading-msg').textContent = msg;
+    el.style.display = 'flex';
+  }
+}
+
+function hideLoading() {
+  const el = document.getElementById('loading-overlay');
+  if (el) el.style.display = 'none';
+}
+
+// ══════════════ AUTH ══════════════
+function loginDemo(rol) { currentUser = { ...DEMO_USERS[rol] }; entrar(); }
+function loginGoogle() {
+  if (SUPABASE_ANON === 'PEGAR-AQUI-TU-ANON-KEY') {
+    showToast('⚡ Demo: simulando Google login…');
+    setTimeout(() => { currentUser = { ...DEMO_USERS.admin }; entrar(); }, 900);
+  } else {
+    loginConGoogle();
+  }
+}
+// ══════════════ BOOT — verificar sesión al cargar ══════════════
+async function boot() {
+  // Caso 1: hay access_token en el hash (callback OAuth exitoso)
+  const hash = window.location.hash
+  if (hash && hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.replace(/^#/, ''))
+    const token = params.get('access_token')
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        const email = payload.email
+          || payload.user_metadata?.email
+          || payload.user_metadata?.full_name
+          || 'usuario@gmail.com'
+        const name = payload.user_metadata?.full_name
+          || payload.user_metadata?.name
+          || email.split('@')[0]
+        const av = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()
+        const rol = email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'socio'
+        const user = { email, nombre: name, rol, av, avBg: 'rgba(0,122,255,.12)', avCol: '#007aff', _token: token }
+        localStorage.setItem('obratrack-session', JSON.stringify(user))
+        // Limpiar el hash de la URL sin recargar
+        window.history.replaceState({}, document.title, window.location.pathname)
+        currentUser = user
+        entrar()
+        return
+      } catch (e) { console.warn('Token parse error:', e) }
+    }
+  }
+
+  // Caso 2: error OAuth en query params
+  const qp = new URLSearchParams(window.location.search)
+  if (qp.get('error')) {
+    window.history.replaceState({}, document.title, window.location.pathname)
+    const errDiv = document.getElementById('login-error-msg')
+    if (errDiv) errDiv.style.display = 'block'
+    return
+  }
+
+  // Caso 3: sesión guardada en localStorage
+  try {
+    const saved = localStorage.getItem('obratrack-session')
+    if (saved) {
+      const user = JSON.parse(saved)
+      // Validar que el token no expiró
+      const payload = JSON.parse(atob(user._token.split('.')[1]))
+      if (payload.exp * 1000 > Date.now()) {
+        currentUser = user
+        entrar()
+        return
+      } else {
+        localStorage.removeItem('obratrack-session')
+      }
+    }
+  } catch (e) {
+    localStorage.removeItem('obratrack-session')
+  }
+}
+
+// Ejecutar al cargar el DOM
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot)
+} else {
+  boot()
+}
+async function entrar() {
+  document.getElementById('scr-login').classList.remove('active');
+  document.getElementById('scr-app').classList.add('active');
+  loadTc();
+  poblarCatSelect();
+  setupProfile();
+  showLoading('Cargando proyectos…');
+  try {
+    S.proyectos = await dbCargarProyectos();
+    S.currentProjId = S.proyectos[0]?.id || null;
+  } catch(e) {
+    console.error('Error cargando proyectos:', e);
+    showToast('Error al cargar datos. Verificá tu conexión.');
+  }
+  hideLoading();
+  navTo('proyectos', document.getElementById('tab-proyectos'));
+  setTimeout(fetchDolarBlue, 800);
+  setTimeout(iniciarRealtime, 1500);
+}
+function setupProfile() {
+  const av = document.getElementById('profile-av');
+  av.textContent = currentUser.av;
+  av.style.background = currentUser.avBg;
+  av.style.color = currentUser.avCol;
+  document.getElementById('profile-name').textContent = currentUser.nombre;
+  document.getElementById('profile-role').textContent = currentUser.rol.charAt(0).toUpperCase() + currentUser.rol.slice(1);
+}
+function confirmLogout() {
+  if (!confirm('¿Cerrar sesión?')) return;
+  localStorage.removeItem('obratrack-session');
+  document.getElementById('scr-app').classList.remove('active');
+  document.getElementById('scr-login').classList.add('active');
+  currentUser = null;
+}
+
+// ══════════════ NAV ══════════════
+function navTo(page, el) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pg-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+
+  // Nav bar config
+  const titles = { proyectos: 'Proyectos', dashboard: proj()?.nombre || 'Resumen', movimientos: 'Movimientos', tareas: 'Tareas', perfil: 'Perfil' };
+  document.getElementById('nav-title').textContent = titles[page] || page;
+
+  // Back button: mostrar en dashboard/movimientos/tareas si venimos de proyecto
+  const showBack = ['dashboard','movimientos','tareas'].includes(page);
+  document.getElementById('nav-back').classList.toggle('visible', showBack);
+  document.getElementById('nav-back-label').textContent = proj()?.nombre?.split('·')[0].trim() || 'Proyectos';
+
+  // Action button
+  const navAct = document.getElementById('nav-action');
+  if (page === 'movimientos' && canEdit()) { navAct.textContent = 'Agregar'; navAct.style.visibility = 'visible'; }
+  else if (page === 'tareas' && canEdit()) { navAct.textContent = 'Nueva'; navAct.style.visibility = 'visible'; }
+  else { navAct.style.visibility = 'hidden'; }
+
+  // FAB
+  const fab = document.getElementById('fab');
+  const showFab = (page === 'movimientos' || page === 'tareas') && canEdit();
+  fab.classList.toggle('hidden', !showFab);
+
+  // TC row
+  document.getElementById('tc-row-wrap').style.display = page === 'proyectos' ? 'none' : 'flex';
+
+  // Scroll to top
+  document.getElementById('page-scroll').scrollTop = 0;
+
+  // Render
+  if (page === 'proyectos') { renderProyectos(); renderCrossResumen(); }
+  if (page === 'dashboard') { recalcAll(); }
+  if (page === 'movimientos') { renderMovimientos(); renderChips(); }
+  if (page === 'tareas') renderTareas();
+  if (page === 'cashflow') { setCfTab('hist', document.getElementById('cf-tab-hist')); }
+  if (page === 'perfil') { renderUsuarios(); renderRubros(); renderAuditoria(); }
+}
+
+function navBack() { navTo('proyectos', document.getElementById('tab-proyectos')); }
+
+function navAction() {
+  if (currentPage === 'movimientos') openSheet('sheet-mov');
+  if (currentPage === 'tareas') openSheet('sheet-tarea');
+}
+function fabAction() { navAction(); }
+
+// ══════════════ PROYECTOS ══════════════
+function renderProyectos() {
+  const container = document.getElementById('proj-cards');
+  container.innerHTML = S.proyectos.map(p => {
+    const eg = p.mov.filter(m => m.tipo === 'egreso' && !m.anulado).reduce((a, m) => a + toARS(m), 0);
+    const ing = p.mov.filter(m => m.tipo === 'ingreso' && !m.anulado).reduce((a, m) => a + toARS(m), 0);
+    const tasks = p.tareas.filter(t => t.est !== 'completada').length;
+    const esAdmin = currentUser?.rol === 'admin' || currentUser?.email === 'Sebastianbouquet@gmail.com';
+    return `
+    <div class="proj-card">
+      <div class="proj-card-header" onclick="abrirProyecto('${p.id}')">
+        <div class="proj-color-dot" style="background:${p.color}18">
+          <span style="font-size:22px">🏗️</span>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="proj-card-name">${p.nombre}</div>
+          <div class="proj-card-sub">${p.desc || p.mov.length + ' movimientos'}</div>
+        </div>
+        <i class="bi bi-chevron-right" style="color:var(--text4)"></i>
+      </div>
+      <div class="proj-stats">
+        <div class="proj-stat">
+          <div class="proj-stat-val t-eg" style="font-size:14px">${fUSD(eg)}</div>
+          <div class="proj-stat-label">Invertido</div>
+        </div>
+        <div class="proj-stat">
+          <div class="proj-stat-val t-ing" style="font-size:14px">${fUSD(ing)}</div>
+          <div class="proj-stat-label">Ingresos</div>
+        </div>
+        <div class="proj-stat">
+          <div class="proj-stat-val" style="font-size:14px">${tasks}</div>
+          <div class="proj-stat-label">Tareas</div>
+        </div>
+        ${esAdmin ? `<div class="proj-stat" style="flex:0 0 auto;padding:10px 12px">
+          <button onclick="eliminarProyecto('${p.id}')" style="background:rgba(255,59,48,.1);color:var(--red);border:none;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            Borrar
+          </button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function eliminarProyecto(id) {
+  const p = S.proyectos.find(pr => pr.id === id);
+  if (!p) return;
+  if (!confirm(`¿Borrar el proyecto "${p.nombre}"?\nSe eliminan todos sus movimientos y tareas. Esta acción no se puede deshacer.`)) return;
+  showLoading('Eliminando…');
+  try {
+    await dbEliminarProyecto(id);
+    S.proyectos = S.proyectos.filter(pr => pr.id !== id);
+    S.currentProjId = S.proyectos[0]?.id || null;
+    hideLoading();
+    renderProyectos();
+    showToast('✓ Proyecto eliminado');
+  } catch(e) { hideLoading(); showToast('Error al eliminar'); }
+}
+
+function abrirProyecto(id) {
+  S.currentProjId = id;
+  navTo('dashboard', document.getElementById('tab-dashboard'));
+}
+
+async function crearProyecto() {
+  const nombre = document.getElementById('pf-nombre').value.trim();
+  if (!nombre) { showToast('Ingresá un nombre'); return; }
+  showLoading('Creando proyecto…');
+  try {
+    const nuevo = await dbCrearProyecto({
+      nombre, desc: document.getElementById('pf-desc').value.trim(), color: selectedColor
+    });
+    const proyCompleto = {
+      id: nuevo.id, nombre, desc: document.getElementById('pf-desc').value.trim(),
+      color: selectedColor, presup: {}, unidades: [], mov: [], tareas: [], etapas: [],
+      usuarios: [{ nombre: currentUser.nombre, email: currentUser.email, rol: 'admin', estado: 'activo' }]
+    };
+    S.proyectos.push(proyCompleto);
+    S.currentProjId = nuevo.id;
+    hideLoading();
+    closeSheet('sheet-nuevo-proj');
+    document.getElementById('pf-nombre').value = '';
+    document.getElementById('pf-desc').value = '';
+    showToast(`✓ Proyecto "${nombre}" creado`);
+    navTo('dashboard', document.getElementById('tab-dashboard'));
+  } catch(e) {
+    hideLoading();
+    showToast('Error al crear proyecto');
+  }
+}
+
+// ══════════════ DASHBOARD ══════════════
+function recalcAll() {
+  saveTc();
+  const p = proj(); if (!p) return;
+  const tc = getTc();
+  const eg = p.mov.filter(m => m.tipo === 'egreso' && !m.anulado).reduce((a, m) => a + toARS(m), 0);
+  const ing = p.mov.filter(m => m.tipo === 'ingreso' && !m.anulado).reduce((a, m) => a + toARS(m), 0);
+  const sal = ing - eg;
+  // USD primero, ARS abajo
+  document.getElementById('m-inv').textContent = fUSD(eg);
+  document.getElementById('m-inv-u').textContent = fARS(eg);
+  document.getElementById('m-ing').textContent = fUSD(ing);
+  document.getElementById('m-ing-u').textContent = fARS(ing);
+  const sm = document.getElementById('m-sal');
+  sm.textContent = fUSD(sal);
+  sm.style.color = sal >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('m-sal-u').textContent = fARS(Math.abs(sal));
+  renderCatBars(p);
+  renderUltimos(p);
+  renderFinanciero();
+  renderEtapas();
+  checkAlertasPresupuesto();
+}
+
+function renderCatBars(p) {
+  const bycat = {};
+  p.mov.filter(m => m.tipo === 'egreso' && !m.anulado).forEach(m => { bycat[m.cat] = (bycat[m.cat] || 0) + toARS(m); });
+  const sorted = Object.entries(bycat).sort((a, b) => b[1] - a[1]);
+  const max = sorted[0]?.[1] || 1;
+  document.getElementById('cat-bars').innerHTML = sorted.map(([cat, v]) => {
+    const col = catColor(cat);
+    const pct = (v / max * 100).toFixed(0);
+    return `<div class="cat-bar-item">
+      <div class="cat-dot" style="background:${col}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;margin-bottom:5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cat}</div>
+        <div class="prog-bg"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div>
+      </div>
+      <div style="text-align:right;min-width:88px">
+        <div style="font-size:14px;font-weight:600">${fUSD(v)}</div>
+        <div style="font-size:11px;color:var(--text3)">${fARS(v)}</div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty-state"><i class="bi bi-inbox"></i><p>Sin movimientos</p></div>';
+}
+
+function renderUltimos(p) {
+  const items = [...p.mov].reverse().slice(0, 8);
+  document.getElementById('ult-list').innerHTML = items.map(m => {
+    const col = catColor(m.cat);
+    const icon = catIcon(m.cat);
+    const ars = toARS(m);
+    return `<div class="mov-item${m.anulado?' mov-anulado':''}">
+      <div class="mov-icon-wrap" style="background:${col}18">${icon}</div>
+      <div class="mov-content">
+        <div class="mov-desc">${m.desc}${m.anulado?' <span class="anulado-badge">ANULADO</span>':''}</div>
+        <div class="mov-meta">${m.cat} · ${m.fecha}</div>
+      </div>
+      <div class="mov-amount">
+        <div class="mov-ars ${m.tipo === 'ingreso' ? 't-ing' : 't-eg'}">${m.tipo === 'ingreso' ? '+' : '-'}${fUSD(ars)}</div>
+        <div class="mov-usd">${fARS(ars)}</div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty-state"><i class="bi bi-inbox"></i><p>Sin movimientos</p></div>';
+}
+
+// ══════════════ MOVIMIENTOS ══════════════
+function poblarCatSelect() {
+  const el = document.getElementById('sf-cat');
+  el.innerHTML = getCats().map(r => `<option value="${r.key}">${r.icon} ${r.key}</option>`).join('');
+}
+
+function setTipoSeg(tipo) {
+  newMovTipo = tipo;
+  document.getElementById('seg-eg').classList.toggle('active', tipo === 'egreso');
+  document.getElementById('seg-ing').classList.toggle('active', tipo === 'ingreso');
+}
+function setMonSeg(mon) {
+  newMovMon = mon;
+  document.getElementById('seg-ars').classList.toggle('active', mon === 'ARS');
+  document.getElementById('seg-usd').classList.toggle('active', mon === 'USD');
+  // Mostrar TC solo cuando es ARS (para saber el equivalente USD al momento del pago)
+  document.getElementById('sf-tc-wrap').style.display = mon === 'ARS' ? 'block' : 'none';
+}
+function usarTcGlobal() {
+  document.getElementById('sf-tc').value = getTc();
+}
+
+
+async function eliminarMov(i) {
+  if (!canDelete()) { showToast('Solo el admin puede eliminar'); return; }
+  if (!confirm('¿Eliminar definitivamente?')) return;
+  const p = proj(); const m = p.mov[i];
+  if (!m?.id) { p.mov.splice(i, 1); renderMovimientos(); recalcAll(); return; }
+  try { await dbEliminarMov(m.id); p.mov.splice(i, 1); renderMovimientos(); recalcAll(); }
+  catch(e) { showToast('Error al eliminar'); }
+}
+
+function renderChips() {
+  const p = proj(); if (!p) return;
+  const cats = [...new Set(p.mov.map(m => m.cat))];
+  document.getElementById('chips-cat').innerHTML = [
+    `<button class="chip${filterCat === '' ? ' active' : ''}" onclick="setChip(this,'cat','')">Todos</button>`,
+    ...cats.map(c => `<button class="chip${filterCat === c ? ' active' : ''}" onclick="setChip(this,'cat','${c.replace(/'/g,"\\'")}')">
+      ${catIcon(c)} ${c}</button>`)
+  ].join('');
+}
+
+async function anularMov(i) {
+  if (!canEdit()) { showToast('Sin permiso'); return; }
+  const m = proj().mov[i]; if (!m) return;
+  m.anulado = !m.anulado;
+  try { await dbActualizarMov(m); renderMovimientos(); recalcAll(); showToast(m.anulado ? '⊘ Anulado' : '↩ Reactivado'); }
+  catch(e) { m.anulado = !m.anulado; showToast('Error'); }
+}
+
+function renderMovimientos() {
+  const p = proj(); if (!p) return;
+  let filtered = p.mov.map((m, i) => ({ ...m, _i: i }));
+  if (filterTipo) filtered = filtered.filter(m => m.tipo === filterTipo);
+  if (filterCat)  filtered = filtered.filter(m => m.cat === filterCat);
+  if (filterSocio) filtered = filtered.filter(m => m.quien === filterSocio);
+  const rango = getDateRange();
+  if (rango) {
+    const [desde, hasta] = rango;
+    filtered = filtered.filter(m => { const d = new Date(m.fecha); return d >= desde && d <= hasta; });
+  }
+  filtered = [...filtered].reverse();
+
+  const list = document.getElementById('mov-list');
+  const empty = document.getElementById('mov-empty');
+  if (!filtered.length) { list.innerHTML = ''; empty.classList.remove('hidden'); } else { empty.classList.add('hidden'); }
+
+  let totE = 0, totI = 0;
+  list.innerHTML = filtered.map(m => {
+    const ars = toARS(m);
+    if (!m.anulado) { if (m.tipo === 'egreso') totE += ars; else totI += ars; }
+    const col = catColor(m.cat);
+    const icon = catIcon(m.cat);
+    return `
+    <div class="swipe-container" id="sw-${m._i}">
+      <!-- Acciones detrás (swipe izquierda) -->
+      <div class="swipe-actions">
+        ${canEdit() ? `<button class="swipe-btn swipe-edit" onclick="editarMovimiento(${m._i});resetSwipe('sw-${m._i}')">✏️<br><span>Editar</span></button>` : ''}
+        ${canEdit() ? `<button class="swipe-btn swipe-anular" onclick="anularMov(${m._i});resetSwipe('sw-${m._i}')">${m.anulado?'↩':'⊘'}<br><span>${m.anulado?'Reactivar':'Anular'}</span></button>` : ''}
+        ${canDelete() ? `<button class="swipe-btn swipe-del" onclick="eliminarMov(${m._i});resetSwipe('sw-${m._i}')">🗑️<br><span>Borrar</span></button>` : ''}
+      </div>
+      <!-- Contenido principal -->
+      <div class="swipe-content mov-item${m.anulado ? ' mov-anulado' : ''}"
+        ontouchstart="swipeStart(event,'sw-${m._i}')"
+        ontouchmove="swipeMove(event,'sw-${m._i}')"
+        ontouchend="swipeEnd(event,'sw-${m._i}')">
+        <div class="mov-icon-wrap" style="background:${col}18">${icon}</div>
+        <div class="mov-content">
+          <div class="mov-desc">${m.desc || m.descripcion || ''}${m.anulado ? ' <span class="anulado-badge">ANULADO</span>' : ''}${m.cuota ? ` <span class="cuota-badge">${m.cuota.n}/${m.cuota.total}</span>` : ''}</div>
+          <div class="mov-meta">${m.cat} · ${m.fecha}${m.quien ? ' · <span class="quien-badge">' + m.quien + '</span>' : ''}</div>
+          ${m.notas ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">📝 ${m.notas}</div>` : ''}
+        </div>
+        <div class="mov-amount" style="align-self:flex-start;margin-top:2px">
+          <div class="mov-ars ${m.tipo === 'ingreso' ? 't-ing' : 't-eg'}">${m.tipo === 'ingreso' ? '+' : '-'}${fUSD(ars)}</div>
+          <div class="mov-usd">${fARS(ars)}</div>
+          <div style="font-size:10px;color:var(--text4);text-align:right;margin-top:2px">← deslizá</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Agregar listeners de click en desktop
+  filtered.forEach(m => {
+    const el = document.querySelector(`#sw-${m._i} .swipe-content`);
+    if (el && !('ontouchstart' in window)) {
+      el.style.cursor = 'pointer';
+    }
+  });
+
+  document.getElementById('ft-eg').textContent = fUSD(totE);
+  document.getElementById('ft-ing').textContent = fUSD(totI);
+  const fs = document.getElementById('ft-sal');
+  fs.textContent = fUSD(totI - totE);
+  fs.style.color = (totI - totE) >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+// ══════════════ TAREAS ══════════════
+function setKanbanTab(est, el) {
+  kanbanTab = est;
+  document.querySelectorAll('.kanban-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderTareas();
+}
+
+function setTareaEst(est) {
+  newTareaEst = est;
+  document.getElementById('tseg-p').classList.toggle('active', est === 'pendiente');
+  document.getElementById('tseg-e').classList.toggle('active', est === 'en_curso');
+}
+
+async function agregarTarea() {
+  if (!canEdit()) return;
+  const tit = document.getElementById('tf-tit').value.trim();
+  if (!tit) { showToast('Ingresá un título'); return; }
+  const tarea = { tit, desc: document.getElementById('tf-desc').value.trim(), est: newTareaEst, ven: document.getElementById('tf-ven').value || null };
+  try {
+    const nueva = await dbAgregarTarea(proj().id, tarea);
+    proj().tareas.push({ ...tarea, id: nueva.id });
+    closeSheet('sheet-tarea'); renderTareas();
+    document.getElementById('tf-tit').value = '';
+    document.getElementById('tf-desc').value = '';
+    showToast('✓ Tarea agregada');
+  } catch(e) { showToast('Error al guardar tarea'); }
+}
+
+async function moverTarea(id, est) {
+  const t = proj().tareas.find(t => t.id === id);
+  if (!t) return;
+  t.est = est;
+  try { await dbActualizarTarea(t); renderTareas(); showToast('✓ Movido'); }
+  catch(e) { showToast('Error'); }
+}
+
+async function eliminarTarea(id) {
+  if (!canEdit()) return;
+  if (!confirm('¿Eliminar tarea?')) return;
+  const p = proj();
+  try {
+    await dbEliminarTarea(id);
+    p.tareas = p.tareas.filter(t => t.id !== id);
+    renderTareas();
+  } catch(e) { showToast('Error al eliminar'); }
+}
+
+function renderTareas() {
+  const p = proj(); if (!p) return;
+  const tareas = p.tareas.filter(t => t.est === kanbanTab);
+  const list = document.getElementById('tareas-list');
+  const empty = document.getElementById('tareas-empty');
+  if (!tareas.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  const estados = { pendiente: ['en_curso', 'completada'], en_curso: ['pendiente', 'completada'], completada: ['pendiente', 'en_curso'] };
+  const estadoLabel = { pendiente: 'Pendiente', en_curso: 'En Curso', completada: '✓ Listo' };
+  list.innerHTML = tareas.map(t => {
+    const otrosEst = estados[t.est] || [];
+    const btns = canEdit() ? otrosEst.map(e => `<button style="padding:6px 12px;border-radius:8px;border:none;background:var(--surface2);color:var(--text);font-size:13px;font-weight:500;cursor:pointer" onclick="moverTarea(${t.id},'${e}')">${estadoLabel[e]}</button>`).join('') : '';
+    const delBtn = canEdit() ? `<button class="del-btn" style="font-size:12px;padding:5px 10px" onclick="eliminarTarea(${t.id})"><i class="bi bi-trash"></i></button>` : '';
+    return `<div class="ios-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+      <div style="width:100%">
+        <div style="font-size:16px;font-weight:600">${t.tit}</div>
+        ${t.desc ? `<div style="font-size:13px;color:var(--text3);margin-top:2px">${t.desc}</div>` : ''}
+        ${t.ven ? `<div style="font-size:12px;color:var(--text3);margin-top:4px"><i class="bi bi-calendar"></i> ${t.ven}</div>` : ''}
+      </div>
+      ${canEdit() ? `<div style="display:flex;gap:8px;flex-wrap:wrap">${btns}${delBtn}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════ USUARIOS / PERFIL ══════════════
+const ADMIN_EMAIL = 'Sebastianbouquet@gmail.com';
+const esAdmin = () => currentUser?.rol === 'admin' || currentUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+let rolInvSeleccionado = 'socio';
+function selRolInv(rol) {
+  rolInvSeleccionado = rol;
+  ['admin','socio','viewer'].forEach(r => {
+    const inner = document.getElementById(`rol-opt-${r}-inner`);
+    if (inner) inner.style.borderColor = r === rol ? 'var(--blue)' : 'transparent';
+  });
+}
+
+async function invitarUsuario() {
+  const email = document.getElementById('inv-email')?.value.trim().toLowerCase();
+  const nombre = document.getElementById('inv-nombre')?.value.trim() || email.split('@')[0];
+  if (!email || !email.includes('@')) { showToast('Email inválido'); return; }
+  const p = proj();
+  if (p.usuarios.find(u => u.email.toLowerCase() === email)) { showToast('Ya tiene acceso'); return; }
+  const rolFinal = email === ADMIN_EMAIL.toLowerCase() ? 'admin' : rolInvSeleccionado;
+  try {
+    await dbInvitarUsuario(p.id, { email, nombre, rol: rolFinal });
+    p.usuarios.push({ nombre, email, rol: rolFinal, estado: 'invitado' });
+    closeSheet('sheet-invitar'); renderUsuarios();
+    document.getElementById('inv-email').value = '';
+    document.getElementById('inv-nombre').value = '';
+    showToast(`✓ ${nombre} agregado como ${rolFinal}`);
+  } catch(e) { showToast('Error al invitar usuario'); }
+}
+
+async function cambiarRolUsuario(i, rol) {
+  const p = proj(); const u = p.usuarios[i]; if (!u) return;
+  if (u.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) { showToast('El admin principal no puede ser modificado'); return; }
+  try {
+    await dbCambiarRol(p.id, u.email, rol);
+    u.rol = rol; renderUsuarios(); showToast('✓ Rol actualizado');
+  } catch(e) { showToast('Error al cambiar rol'); }
+}
+
+async function quitarUsuario(i) {
+  const p = proj(); const u = p.usuarios[i];
+  if (u?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) { showToast('No podés quitar al admin principal'); return; }
+  if (!confirm(`¿Quitar acceso a ${u?.nombre}?`)) return;
+  try {
+    await dbQuitarUsuario(p.id, u.email);
+    p.usuarios.splice(i, 1); renderUsuarios(); showToast('✓ Acceso revocado');
+  } catch(e) { showToast('Error'); }
+}
+
+function renderUsuarios() {
+  const p = proj(); if (!p) return;
+  // Asegurar que el admin fijo siempre esté
+  if (!p.usuarios.find(u => u.email.toLowerCase() === ADMIN_EMAIL.toLowerCase())) {
+    p.usuarios.unshift({ nombre: 'Sebas', email: ADMIN_EMAIL, rol: 'admin', estado: 'activo' });
+  }
+  const tb = document.getElementById('usuarios-list');
+  const adminColors = { admin:'rgba(0,122,255,.12):#007aff', socio:'rgba(52,199,89,.12):#34c759', viewer:'rgba(142,142,147,.12):#8e8e93' };
+  tb.innerHTML = p.usuarios.map((u, i) => {
+    const esSelf = currentUser && u.email.toLowerCase() === currentUser.email?.toLowerCase();
+    const esAdminFijo = u.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    const [bg, col] = (adminColors[u.rol] || 'rgba(142,142,147,.12):#8e8e93').split(':');
+    const rolLabel = { admin:'👑 Admin', socio:'🤝 Socio', viewer:'👁️ Viewer' }[u.rol] || u.rol;
+    return `<div class="ios-row" style="flex-direction:column;align-items:flex-start;gap:8px;padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:10px;width:100%">
+        <div style="width:38px;height:38px;border-radius:50%;background:${bg};color:${col};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${u.nombre.substring(0,2).toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:600">${u.nombre}${esSelf ? ' <span style="color:var(--text3);font-size:12px;font-weight:400">(vos)</span>' : ''}${esAdminFijo ? ' <span style="color:var(--blue);font-size:11px">★</span>' : ''}</div>
+          <div style="font-size:12px;color:var(--text3)">${u.email}</div>
+        </div>
+        <span style="background:${bg};color:${col};padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">${rolLabel}</span>
+      </div>
+      ${esAdmin() && !esSelf && !esAdminFijo ? `
+      <div style="display:flex;gap:8px;padding-left:48px;flex-wrap:wrap">
+        ${['admin','socio','viewer'].filter(r => r !== u.rol).map(r => `
+          <button onclick="cambiarRolUsuario(${i},'${r}')" style="background:var(--surface2);border:none;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2)">
+            → ${{ admin:'Admin', socio:'Socio', viewer:'Viewer' }[r]}
+          </button>`).join('')}
+        <button onclick="quitarUsuario(${i})" style="background:rgba(255,59,48,.1);color:var(--red);border:none;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:500;cursor:pointer">Quitar</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+  // Mostrar/ocultar botón invitar
+  const btnInv = document.getElementById('btn-invitar-wrap');
+  if (btnInv) btnInv.style.display = esAdmin() ? 'block' : 'none';
+}
+
+// ══════════════ SHEETS ══════════════
+function openSheet(id) {
+  if (id === 'sheet-mov') {
+    document.getElementById('sf-fecha').value = hoy();
+    poblarQuienSelect();
+    document.getElementById('sf-tc').value = getTc();
+    document.getElementById('sf-primera-cuota').value = hoy();
+  }
+  if (id === 'sheet-tarea') document.getElementById('tf-ven').value = hoy();
+  if (id === 'sheet-etapa') {
+    document.getElementById('sheet-etapa-title').textContent = 'Nueva etapa';
+    document.getElementById('ef-edit-idx').value = '';
+    document.getElementById('ef-pct').value = 0;
+    document.getElementById('ef-pct-val').textContent = '0%';
+    document.getElementById('ef-notas').value = '';
+    document.getElementById('ef-custom-wrap').style.display = 'none';
+    document.getElementById('ef-presup').value = '';
+    document.getElementById('ef-fecha-inicio').value = hoy();
+    setEtapaEst('pendiente');
+    setEtapaMon('USD');
+    setEtapaCuotas(false);
+  }
+  document.getElementById(id).classList.add('open');
+}
+function closeSheet(id) { document.getElementById(id).classList.remove('open'); }
+function closeSheetIf(e, id) { if (e.target === document.getElementById(id)) closeSheet(id); }
+
+// ══════════════ COLOR ══════════════
+function selColor(el) {
+  selectedColor = el.dataset.color;
+  document.querySelectorAll('.color-sw').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ══════════════ RUBROS ══════════════
+let selectedRubroColor = '#ff9500';
+let selectedRubroEmoji = '📦';
+
+function renderRubros() {
+  if (!canEdit()) { document.getElementById('rubros-section').style.display = 'none'; return; }
+  const rubros = getAllCats();
+  document.getElementById('rubros-list').innerHTML = rubros.map((r, i) => {
+    const inactivo = r.inactivo;
+    const esBase = RUBROS_BASE.some(b => b.key === r.key);
+    return `<div class="ios-row" style="opacity:${inactivo ? .45 : 1}">
+      <div class="ios-row-icon" style="background:${r.color}18;font-size:20px">${r.icon}</div>
+      <div class="ios-row-content">
+        <div class="ios-row-title">${r.key}${inactivo ? ' <span style="font-size:12px;color:var(--text3);font-weight:400">(inactivo)</span>' : ''}</div>
+        ${esBase ? '<div class="ios-row-sub" style="font-size:11px">Rubro base</div>' : ''}
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${!inactivo ? `<button onclick="editarRubro(${i})" style="background:rgba(0,122,255,.1);color:var(--blue);border:none;border-radius:8px;padding:5px 11px;font-size:13px;font-weight:600;cursor:pointer">Editar</button>` : ''}
+        <button onclick="toggleRubro(${i})" style="background:${inactivo ? 'rgba(52,199,89,.12)' : 'rgba(255,59,48,.1)'};color:${inactivo ? 'var(--green)' : 'var(--red)'};border:none;border-radius:8px;padding:5px 11px;font-size:13px;font-weight:600;cursor:pointer">
+          ${inactivo ? 'Activar' : 'Inactivar'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRubro(i) {
+  const p = proj();
+  const r = p.rubros[i];
+  if (!r) return;
+  r.inactivo = !r.inactivo;
+  dbActualizarProyecto(proj()).catch(()=>{}); renderRubros(); poblarCatSelect();
+  showToast(r.inactivo ? `⊘ Rubro "${r.key}" inactivo` : `✓ Rubro "${r.key}" activo`);
+}
+
+function editarRubro(i) {
+  const r = getAllCats()[i];
+  document.getElementById('sheet-rubro-title').textContent = 'Editar rubro';
+  document.getElementById('rf-edit-key').value = r.key;
+  document.getElementById('rf-nombre').value = r.key;
+  document.getElementById('rf-icon').value = r.icon;
+  selectedRubroColor = r.color;
+  selectedRubroEmoji = r.icon;
+  document.querySelectorAll('.color-sw', document.getElementById('rubro-color-swatches')).forEach(el => {
+    el.classList.toggle('sel', el.dataset.color === r.color);
+  });
+  openSheet('sheet-rubro');
+}
+
+function openNuevoRubro() {
+  document.getElementById('sheet-rubro-title').textContent = 'Nuevo rubro';
+  document.getElementById('rf-edit-key').value = '';
+  document.getElementById('rf-nombre').value = '';
+  document.getElementById('rf-icon').value = '';
+  selectedRubroColor = '#ff9500';
+  selectedRubroEmoji = '📦';
+  document.querySelectorAll('#rubro-color-swatches .color-sw').forEach((el,i) => el.classList.toggle('sel', i===0));
+  document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('sel'));
+  openSheet('sheet-rubro');
+}
+
+function guardarRubro() {
+  const nombre = document.getElementById('rf-nombre').value.trim();
+  const iconInput = document.getElementById('rf-icon').value.trim();
+  const icon = iconInput || selectedRubroEmoji || '📦';
+  const editKey = document.getElementById('rf-edit-key').value;
+  if (!nombre) { showToast('Ingresá un nombre'); return; }
+  const p = proj();
+  if (!p.rubros) p.rubros = [...RUBROS_BASE];
+  if (editKey) {
+    // Editar existente
+    const r = p.rubros.find(r => r.key === editKey);
+    if (r) { r.key = nombre; r.icon = icon; r.color = selectedRubroColor; }
+    // Actualizar movimientos que tenían ese rubro
+    p.mov.forEach(m => { if (m.cat === editKey) m.cat = nombre; });
+  } else {
+    // Nuevo
+    if (p.rubros.find(r => r.key === nombre)) { showToast('Ya existe ese rubro'); return; }
+    p.rubros.push({ key: nombre, icon, color: selectedRubroColor });
+  }
+  dbActualizarProyecto(proj()).catch(()=>{}); closeSheet("sheet-rubro"); renderRubros(); poblarCatSelect(); renderChips();
+  showToast(editKey ? `✓ Rubro actualizado` : `✓ Rubro "${nombre}" creado`);
+}
+
+function selEmoji(el) {
+  selectedRubroEmoji = el.textContent;
+  document.getElementById('rf-icon').value = el.textContent;
+  document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function selRubroColor(el) {
+  selectedRubroColor = el.dataset.color;
+  document.querySelectorAll('#rubro-color-swatches .color-sw').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ══════════════ UNIDADES / RENTABILIDAD ══════════════
+let unidadMon = 'USD';
+
+function setUnidadMon(mon) {
+  unidadMon = mon;
+  document.getElementById('uf-seg-ars').classList.toggle('active', mon === 'ARS');
+  document.getElementById('uf-seg-usd').classList.toggle('active', mon === 'USD');
+  document.getElementById('uf-tc-wrap').style.display = mon === 'ARS' ? 'block' : 'none';
+}
+
+function openNuevaUnidad() {
+  document.getElementById('sheet-unidad-title').textContent = 'Nueva unidad';
+  document.getElementById('uf-edit-idx').value = '';
+  document.getElementById('uf-nombre').value = '';
+  document.getElementById('uf-precio').value = '';
+  document.getElementById('uf-notas').value = '';
+  document.getElementById('uf-tc').value = getTc();
+  setUnidadMon('USD');
+  openSheet('sheet-unidad');
+}
+
+function editarUnidad(idx) {
+  const p = proj();
+  const u = p.unidades?.[idx];
+  if (!u) return;
+  document.getElementById('sheet-unidad-title').textContent = 'Editar unidad';
+  document.getElementById('uf-edit-idx').value = idx;
+  document.getElementById('uf-nombre').value = u.nombre;
+  document.getElementById('uf-precio').value = u.precio;
+  document.getElementById('uf-notas').value = u.notas || '';
+  document.getElementById('uf-tc').value = u.tc || getTc();
+  setUnidadMon(u.moneda || 'USD');
+  openSheet('sheet-unidad');
+}
+
+async function guardarUnidad() {
+  const nombre = document.getElementById('uf-nombre').value.trim();
+  const precio = parseFloat(document.getElementById('uf-precio').value);
+  const notas = document.getElementById('uf-notas').value.trim();
+  const tc = parseFloat(document.getElementById('uf-tc').value) || getTc();
+  if (!nombre || !precio || precio <= 0) { showToast('Completá nombre y precio'); return; }
+  const p = proj();
+  if (!p.unidades) p.unidades = [];
+  const editIdx = document.getElementById('uf-edit-idx').value;
+  const unidad = { nombre, precio, moneda: unidadMon, tc, notas };
+  if (editIdx !== '') { p.unidades[parseInt(editIdx)] = unidad; }
+  else { p.unidades.push(unidad); }
+  try { await dbActualizarProyecto(p); } catch(e) {}
+  closeSheet('sheet-unidad');
+  renderFinanciero();
+  recalcAll();
+  showToast(`✓ Unidad "${nombre}" guardada`);
+}
+
+async function eliminarUnidad(idx) {
+  if (!confirm('¿Eliminar esta unidad?')) return;
+  const p = proj();
+  p.unidades.splice(idx, 1);
+  try { await dbActualizarProyecto(p); } catch(e) {}
+  renderFinanciero(); recalcAll();
+  showToast('✓ Unidad eliminada');
+}
+
+// Precio de venta en ARS
+const ventaARS = u => u.moneda === 'USD' ? u.precio * (u.tc || getTc()) : u.precio;
+const ventaUSD = u => u.moneda === 'USD' ? u.precio : u.precio / (u.tc || getTc());
+
+function renderFinanciero() {
+  const p = proj(); if (!p) return;
+  const tc = getTc();
+  const unidades = p.unidades || [];
+  const totalEg = p.mov.filter(m => m.tipo === 'egreso' && !m.anulado).reduce((a, m) => a + toARS(m), 0);
+  const totalEgUSD = totalEg / tc;
+
+  const listEl = document.getElementById('unidades-list');
+  const resEl = document.getElementById('financiero-resumen');
+  const emptyEl = document.getElementById('financiero-empty');
+
+  if (!unidades.length) {
+    listEl.innerHTML = '';
+    resEl.style.display = 'none';
+    emptyEl.style.display = 'block';
+    // Limpiar métricas ROI
+    document.getElementById('m-roi').textContent = '—';
+    document.getElementById('m-roi-sub').textContent = 'Definí precio de venta';
+    document.getElementById('m-margen').textContent = '—';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  // Total venta
+  const totalVentaARS = unidades.reduce((a, u) => a + ventaARS(u), 0);
+  const totalVentaUSD = unidades.reduce((a, u) => a + ventaUSD(u), 0);
+  const gananciaARS = totalVentaARS - totalEg;
+  const gananciaUSD = gananciaARS / tc;
+  const roi = totalEg > 0 ? (gananciaARS / totalEg * 100) : 0;
+  const margen = totalVentaARS > 0 ? (gananciaARS / totalVentaARS * 100) : 0;
+  const avancePct = totalVentaARS > 0 ? Math.min(totalEg / totalVentaARS * 100, 100) : 0;
+  const costoPct = totalVentaARS > 0 ? (totalEg / totalVentaARS * 100) : 0;
+  const ganPct = 100 - costoPct;
+
+  // Cards de unidades
+  listEl.innerHTML = unidades.map((u, i) => {
+    const vARS = ventaARS(u);
+    const vUSD = ventaUSD(u);
+    const costoU = totalEg / unidades.length; // costo proporcional por unidad
+    const ganU = vARS - costoU;
+    const roiU = costoU > 0 ? (ganU / costoU * 100) : 0;
+    const roiColor = roiU >= 20 ? 'var(--green)' : roiU >= 0 ? 'var(--orange)' : 'var(--red)';
+    return `
+    <div style="background:var(--surface);border-radius:12px;margin-bottom:10px;overflow:hidden">
+      <div style="padding:14px 16px;display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,122,255,.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏠</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:16px;font-weight:700">${u.nombre}</div>
+          ${u.notas ? `<div style="font-size:12px;color:var(--text3)">${u.notas}</div>` : ''}
+        </div>
+        ${canEdit() ? `<div style="display:flex;gap:8px">
+          <button onclick="editarUnidad(${i})" style="background:var(--surface2);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer">Editar</button>
+          <button onclick="eliminarUnidad(${i})" style="background:rgba(255,59,48,.1);color:var(--red);border:none;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer">✕</button>
+        </div>` : ''}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:.5px solid var(--sep)">
+        <div style="padding:10px 14px;border-right:.5px solid var(--sep)">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px">PRECIO VENTA</div>
+          <div style="font-size:14px;font-weight:700;color:var(--green)">${'USD ' + Math.round(vUSD).toLocaleString('es-AR')}</div>
+          <div style="font-size:11px;color:var(--text3)">${fARS(vARS)}</div>
+        </div>
+        <div style="padding:10px 14px;border-right:.5px solid var(--sep)">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px">COSTO ESTIMADO</div>
+          <div style="font-size:14px;font-weight:700;color:var(--red)">${fUSD(costoU)}</div>
+          <div style="font-size:11px;color:var(--text3)">USD ${Math.round(costoU/tc).toLocaleString('es-AR')}</div>
+        </div>
+        <div style="padding:10px 14px">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px">ROI UNIDAD</div>
+          <div style="font-size:14px;font-weight:700;color:${roiColor}">${roiU >= 0 ? '+' : ''}${roiU.toFixed(1)}%</div>
+          <div style="font-size:11px;color:var(--text3)">${ganU >= 0 ? '+' : ''}USD ${Math.round(ganU/tc).toLocaleString('es-AR')}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Resumen total
+  resEl.style.display = 'block';
+  document.getElementById('fr-venta-ars').textContent = fUSD(totalVentaARS);
+  document.getElementById('fr-venta-usd').textContent = fARS(totalVentaARS);
+  document.getElementById('fr-inv-ars').textContent = fUSD(totalEg);
+  document.getElementById('fr-inv-usd').textContent = fARS(totalEg);
+  const ganEl = document.getElementById('fr-gan-ars');
+  ganEl.textContent = (gananciaUSD >= 0 ? '+' : '') + fUSD(gananciaARS);
+  ganEl.style.color = gananciaARS >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('fr-gan-usd').textContent = (gananciaARS >= 0 ? '+' : '') + fARS(Math.abs(gananciaARS));
+  document.getElementById('fr-avance').textContent = avancePct.toFixed(1) + '%';
+  document.getElementById('fr-pct-label').textContent = avancePct.toFixed(1) + '% invertido del precio de venta';
+  document.getElementById('fr-bar-inv').style.width = Math.min(costoPct, 100) + '%';
+  document.getElementById('fr-bar-gan').style.width = Math.max(ganPct, 0) + '%';
+
+  // Métricas en cards superiores
+  const roiEl = document.getElementById('m-roi');
+  roiEl.textContent = (roi >= 0 ? '+' : '') + roi.toFixed(1) + '%';
+  roiEl.style.color = roi >= 20 ? 'var(--green)' : roi >= 0 ? 'var(--orange)' : 'var(--red)';
+  document.getElementById('m-roi-sub').textContent = 'sobre lo invertido';
+  const margenEl = document.getElementById('m-margen');
+  margenEl.textContent = (margen >= 0 ? '+' : '') + margen.toFixed(1) + '%';
+  margenEl.style.color = margen >= 15 ? 'var(--green)' : margen >= 0 ? 'var(--orange)' : 'var(--red)';
+  // Desvío vs objetivo
+  const obj = getMargenObj();
+  const desvio = margen - obj;
+  const desvEl = document.getElementById('m-desvio');
+  if (desvEl) {
+    desvEl.textContent = (desvio >= 0 ? '+' : '') + desvio.toFixed(1) + '%';
+    desvEl.style.color = desvio >= 0 ? 'var(--green)' : 'var(--red)';
+    document.getElementById('m-desvio-sub').textContent = `vs objetivo ${obj}%`;
+    document.getElementById('margen-obj-label').textContent = `obj: ${obj}%`;
+  }
+}
+
+// ══════════════ DISTRIBUCIÓN PROPORCIONAL ══════════════
+let distribucionMode = 'uno'; // 'uno' | 'igual' | 'custom'
+
+function setDistribucion(mode) {
+  distribucionMode = mode;
+  ['uno','igual','custom'].forEach(m => {
+    document.getElementById(`seg-dist-${m}`)?.classList.toggle('active', m === mode);
+    const wrap = document.getElementById(`sf-dist-${m}-wrap`);
+    if (wrap) wrap.style.display = m === mode ? 'block' : 'none';
+  });
+  if (mode === 'igual') renderPorcentajesIguales();
+  if (mode === 'custom') renderPorcentajesCustom();
+}
+
+function getUsuariosProyecto() {
+  const p = proj();
+  const usuarios = p?.usuarios || [];
+  if (!usuarios.length) return [{ nombre: currentUser?.nombre || 'Yo', email: currentUser?.email || '' }];
+  return usuarios;
+}
+
+function renderPorcentajesIguales() {
+  const usuarios = getUsuariosProyecto();
+  const pct = Math.round(100 / usuarios.length);
+  const info = document.getElementById('sf-dist-igual-info');
+  if (info) info.innerHTML = usuarios.map(u =>
+    `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:.5px solid rgba(0,122,255,.1)">
+      <span>${u.nombre}</span><strong>${pct}%</strong>
+    </div>`
+  ).join('') + `<div style="font-size:11px;margin-top:6px;opacity:.7">El monto se divide en ${usuarios.length} partes iguales</div>`;
+}
+
+function renderPorcentajesCustom() {
+  const usuarios = getUsuariosProyecto();
+  const monedaMov = newMovMon;
+  const list = document.getElementById('sf-porcentajes-list');
+  list.innerHTML = usuarios.map((u, i) => `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="font-size:14px;font-weight:500;min-width:80px">${u.nombre}</div>
+      <input type="number" min="0" placeholder="0" inputmode="decimal"
+        id="monto-dist-${i}" class="f-input" style="flex:1;font-size:15px"
+        oninput="actualizarTotalPct()">
+      <span id="pct-dist-${i}" style="font-size:13px;font-weight:700;color:var(--blue);min-width:42px;text-align:right">0%</span>
+    </div>`).join('');
+  actualizarTotalPct();
+}
+
+function actualizarTotalPct() {
+  const usuarios = getUsuariosProyecto();
+  let total = 0;
+  const montos = usuarios.map((_, i) => parseFloat(document.getElementById(`monto-dist-${i}`)?.value) || 0);
+  total = montos.reduce((a, b) => a + b, 0);
+  // Calcular % de cada uno
+  montos.forEach((m, i) => {
+    const pct = total > 0 ? Math.round(m / total * 100) : 0;
+    const el = document.getElementById(`pct-dist-${i}`);
+    if (el) el.textContent = pct + '%';
+  });
+  const totEl = document.getElementById('sf-monto-total');
+  if (totEl) totEl.textContent = total.toLocaleString('es-AR');
+  const pctEl = document.getElementById('sf-pct-total');
+  const sumPct = montos.reduce((a, m) => a + (total > 0 ? Math.round(m / total * 100) : 0), 0);
+  if (pctEl) { pctEl.textContent = sumPct + '%'; pctEl.style.color = Math.abs(sumPct - 100) <= 1 ? 'var(--green)' : 'var(--blue)'; }
+}
+
+function getDistribucionData() {
+  const usuarios = getUsuariosProyecto();
+  if (distribucionMode === 'uno') {
+    const quien = document.getElementById('sf-quien')?.value || currentUser?.nombre;
+    return [{ nombre: quien, pct: 100 }];
+  }
+  if (distribucionMode === 'igual') {
+    const pct = Math.round(100 / usuarios.length);
+    return usuarios.map(u => ({ nombre: u.nombre, pct }));
+  }
+  if (distribucionMode === 'custom') {
+    const montos = usuarios.map((_, i) => parseFloat(document.getElementById(`monto-dist-${i}`)?.value) || 0);
+    const total = montos.reduce((a, b) => a + b, 0);
+    return usuarios.map((u, i) => ({
+      nombre: u.nombre,
+      pct: total > 0 ? Math.round(montos[i] / total * 100) : 0,
+      monto: montos[i]
+    }));
+  }
+  return [];
+}
+
+// ══════════════ TC HISTÓRICO BCRA ══════════════
+async function fetchTcHistorico(fecha) {
+  // fecha formato YYYY-MM-DD
+  if (!fecha || fecha >= hoy()) return null; // solo fechas pasadas
+  try {
+    // API bluelytics — tiene histórico
+    const [y, m, d] = fecha.split('-');
+    const url = `https://api.bluelytics.com.ar/v2/historical?day=${fecha}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('no data');
+    const data = await res.json();
+    const val = data?.blue?.value_sell || data?.blue?.value_avg || data?.official?.value_sell;
+    if (val) return Math.round(val);
+  } catch(e) {}
+  // Fallback: dolarapi.com
+  try {
+    const res = await fetch(`https://dolarapi.com/v1/dolares/blue`);
+    const data = await res.json();
+    return Math.round(data?.venta || data?.compra) || null;
+  } catch(e) { return null; }
+}
+
+// Auto-completar TC cuando cambia la fecha en el sheet de movimiento
+async function onFechaChange() {
+  const fecha = document.getElementById('sf-fecha').value;
+  if (!fecha || newMovMon !== 'ARS') return;
+  if (fecha >= hoy()) {
+    // Fecha de hoy o futura → usar TC global
+    document.getElementById('sf-tc').value = getTc();
+    return;
+  }
+  const tcEl = document.getElementById('sf-tc');
+  tcEl.value = '…';
+  tcEl.style.color = 'var(--text3)';
+  const tc = await fetchTcHistorico(fecha);
+  if (tc) {
+    tcEl.value = tc;
+    tcEl.style.color = 'var(--blue)';
+    showToast(`✓ TC del ${fecha}: $ ${tc.toLocaleString('es-AR')}`);
+  } else {
+    tcEl.value = getTc();
+    tcEl.style.color = '';
+  }
+}
+function poblarQuienSelect() {
+  const sel = document.getElementById('sf-quien');
+  if (!sel) return;
+  const usuarios = getUsuariosProyecto();
+  sel.innerHTML = usuarios.map(u =>
+    `<option value="${u.nombre}" ${u.email?.toLowerCase() === currentUser?.email?.toLowerCase() ? 'selected' : ''}>${u.nombre}${u.email?.toLowerCase() === currentUser?.email?.toLowerCase() ? ' (yo)' : ''}</option>`
+  ).join('');
+}
+
+// ══════════════ EDITAR MOVIMIENTO ══════════════
+function editarMovimiento(idx) {
+  const p = proj();
+  const m = p.mov[idx]; if (!m) return;
+  // Título y modo edición
+  document.getElementById('sheet-mov-title').textContent = 'Editar movimiento';
+  document.getElementById('sf-edit-idx').value = idx;
+  document.getElementById('btn-guardar-mov').textContent = 'Guardar cambios';
+  // Ocultar cuotas en edición
+  document.getElementById('sf-cuotas-section').style.display = 'none';
+  // Precargar valores
+  setTipoSeg(m.tipo || 'egreso');
+  document.getElementById('sf-fecha').value = m.fecha;
+  setMonSeg(m.moneda || 'ARS');
+  if (m.tc) document.getElementById('sf-tc').value = m.tc;
+  poblarCatSelect();
+  document.getElementById('sf-cat').value = m.cat;
+  document.getElementById('sf-desc').value = m.desc;
+  document.getElementById('sf-monto').value = m.monto;
+  document.getElementById('sf-notas').value = m.notas || '';
+  poblarQuienSelect();
+  // Distribución
+  if (m.distribucion?.length > 1) {
+    setDistribucion('igual'); // simplificado — podrías detectar custom
+  } else {
+    setDistribucion('uno');
+    if (m.quien) document.getElementById('sf-quien').value = m.quien;
+  }
+  openSheet('sheet-mov');
+}
+
+// ══════════════ CUOTAS ══════════════
+let enCuotas = false;
+function setCuotas(val) {
+  enCuotas = val;
+  document.getElementById('seg-cuota-no').classList.toggle('active', !val);
+  document.getElementById('seg-cuota-si').classList.toggle('active', val);
+  document.getElementById('sf-cuotas-wrap').style.display = val ? 'block' : 'none';
+}
+
+// ══════════════ AGREGAR / GUARDAR MOVIMIENTO ══════════════
+async function agregarMovWrapper() {
+  if (!canEdit()) { showToast('Sin permiso'); return; }
+  const fecha = document.getElementById('sf-fecha').value;
+  const cat = document.getElementById('sf-cat').value;
+  const desc = document.getElementById('sf-desc').value.trim();
+  const moneda = newMovMon;
+  const monto = parseFloat(document.getElementById('sf-monto').value);
+  const tcMov = moneda === 'ARS' ? (parseFloat(document.getElementById('sf-tc').value) || getTc()) : null;
+  const notas = document.getElementById('sf-notas')?.value?.trim() || '';
+  const distribucion = getDistribucionData();
+  const quien = distribucion.length === 1 ? distribucion[0].nombre : distribucion.map(d => d.nombre).join(', ');
+  if (!fecha || !desc || !monto || monto <= 0) { showToast('Completá todos los campos'); return; }
+  const editIdx = document.getElementById('sf-edit-idx').value;
+  const p = proj();
+  closeSheet('sheet-mov');
+
+  const resetForm = () => {
+    document.getElementById('sf-edit-idx').value = '';
+    document.getElementById('sf-desc').value = '';
+    document.getElementById('sf-monto').value = '';
+    document.getElementById('sf-tc').value = '';
+    document.getElementById('sf-notas').value = '';
+    document.getElementById('sheet-mov-title').textContent = 'Nuevo movimiento';
+    document.getElementById('btn-guardar-mov').textContent = 'Agregar movimiento';
+    document.getElementById('sf-cuotas-section').style.display = 'block';
+    setCuotas(false); setDistribucion('uno');
+  };
+
+  if (editIdx !== '') {
+    const m = p.mov[parseInt(editIdx)];
+    if (m) {
+      Object.assign(m, { fecha, tipo: newMovTipo, cat, desc, moneda, monto, tc: tcMov, notas, quien, distribucion });
+      try { await dbActualizarMov(m); showToast('✓ Movimiento actualizado'); }
+      catch(e) { showToast('Error al actualizar'); }
+    }
+  } else if (enCuotas) {
+    const n = parseInt(document.getElementById('sf-ncuotas').value) || 3;
+    const primeraFecha = document.getElementById('sf-primera-cuota').value || fecha;
+    const montoCuota = monto / n;
+    for (let i = 0; i < n; i++) {
+      const d = new Date(primeraFecha); d.setMonth(d.getMonth() + i);
+      const mov = { fecha: d.toISOString().split('T')[0], tipo: newMovTipo, cat, desc: `${desc} (${i+1}/${n})`, moneda, monto: montoCuota, tc: tcMov, quien, notas, distribucion, cuota: { n: i+1, total: n }, anulado: false };
+      try { const nuevo = await dbAgregarMov(p.id, mov); p.mov.push({ ...mov, id: nuevo.id }); } catch(e) {}
+    }
+    showToast(`✓ ${n} cuotas registradas`);
+  } else {
+    const mov = { fecha, tipo: newMovTipo, cat, desc, moneda, monto, tc: tcMov, quien, notas, distribucion, anulado: false };
+    try {
+      const nuevo = await dbAgregarMov(p.id, mov);
+      p.mov.push({ ...mov, id: nuevo.id });
+      dbLog('mov_nuevo', `Nuevo ${newMovTipo}: ${desc} — ${moneda === 'USD' ? 'USD ' + monto : fARS(monto)}`);
+      showToast('✓ Movimiento registrado');
+    } catch(e) { showToast('Error al guardar'); console.error(e); }
+  }
+
+  resetForm();
+  renderMovimientos(); renderChips(); recalcAll();
+}
+
+// ══════════════ ALERTAS DE PRESUPUESTO ══════════════
+function checkAlertasPresupuesto() {
+  const p = proj(); if (!p) return;
+  const bycat = {};
+  p.mov.filter(m => m.tipo === 'egreso' && !m.anulado).forEach(m => { bycat[m.cat] = (bycat[m.cat] || 0) + toARS(m); });
+  const alertas = [];
+  Object.entries(p.presup || {}).forEach(([cat, presup]) => {
+    const ejec = bycat[cat] || 0;
+    const pct = presup > 0 ? ejec / presup * 100 : 0;
+    if (pct >= 100) alertas.push({ cat, pct, tipo: 'excedido' });
+    else if (pct >= 80) alertas.push({ cat, pct, tipo: 'alerta' });
+  });
+  // Mostrar/ocultar banner de alertas en dashboard
+  let banner = document.getElementById('alerta-presup-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'alerta-presup-banner';
+    const metricsSection = document.querySelector('#pg-dashboard .ios-section');
+    if (metricsSection) metricsSection.parentNode.insertBefore(banner, metricsSection);
+  }
+  if (alertas.length) {
+    const excedidos = alertas.filter(a => a.tipo === 'excedido');
+    const enAlerta = alertas.filter(a => a.tipo === 'alerta');
+    banner.innerHTML = alertas.map(a => `
+      <div class="alerta-presup">
+        <span style="font-size:16px">${a.tipo === 'excedido' ? '🚨' : '⚠️'}</span>
+        <span><strong>${a.cat}</strong> ${a.tipo === 'excedido' ? 'excedió el presupuesto' : 'al ' + a.pct.toFixed(0) + '% del presupuesto'}</span>
+      </div>`).join('');
+  } else {
+    banner.innerHTML = '';
+  }
+}
+
+// ══════════════ DÓLAR BLUE ══════════════
+async function fetchDolarBlue() {
+  const pill = document.getElementById('dolar-pill');
+  if (pill) pill.className = 'dolar-pill loading';
+  try {
+    const res = await fetch('https://dolarito.ar/api/informal');
+    const data = await res.json();
+    const compra = data.buy || data.compra;
+    const venta = data.sell || data.venta;
+    const val = venta || compra;
+    if (val) {
+      document.getElementById('tc').value = Math.round(val);
+      recalcAll();
+      if (pill) {
+        pill.className = 'dolar-pill';
+        pill.innerHTML = `<span>💵</span> Blue $ ${Math.round(val).toLocaleString('es-AR')}`;
+      }
+      showToast(`✓ TC actualizado: $ ${Math.round(val).toLocaleString('es-AR')}`);
+    }
+  } catch(e) {
+    // Fallback a bluelytics
+    try {
+      const res2 = await fetch('https://api.bluelytics.com.ar/v2/latest');
+      const d2 = await res2.json();
+      const val2 = d2?.blue?.value_sell || d2?.blue?.value_avg;
+      if (val2) {
+        document.getElementById('tc').value = Math.round(val2);
+        recalcAll();
+        if (pill) {
+          pill.className = 'dolar-pill';
+          pill.innerHTML = `<span>💵</span> Blue $ ${Math.round(val2).toLocaleString('es-AR')}`;
+        }
+        showToast(`✓ TC actualizado: $ ${Math.round(val2).toLocaleString('es-AR')}`);
+      }
+    } catch(e2) {
+      if (pill) { pill.className = 'dolar-pill'; pill.innerHTML = '💵 Actualizar TC'; }
+      showToast('No se pudo obtener el dólar blue');
+    }
+  }
+}
+
+// ══════════════ ETAPAS DE OBRA ══════════════
+let etapaEst = 'pendiente';
+function setEtapaEst(est) {
+  etapaEst = est;
+  ['pend','curso','ok'].forEach(k => document.getElementById(`ef-est-${k}`)?.classList.remove('active'));
+  const map = { pendiente: 'pend', en_curso: 'curso', completada: 'ok' };
+  document.getElementById(`ef-est-${map[est]}`)?.classList.add('active');
+}
+
+// Listener para "Otra…"
+document.addEventListener('DOMContentLoaded', () => {
+  const efNombre = document.getElementById('ef-nombre');
+  if (efNombre) efNombre.addEventListener('change', () => {
+    document.getElementById('ef-custom-wrap').style.display = efNombre.value === 'Otra…' ? 'block' : 'none';
+  });
+});
+
+async function guardarEtapa() {
+  const sel = document.getElementById('ef-nombre');
+  const nombre = sel.value === 'Otra…' ? document.getElementById('ef-custom').value.trim() : sel.value;
+  if (!nombre) { showToast('Ingresá un nombre'); return; }
+  const pct = parseInt(document.getElementById('ef-pct').value) || 0;
+  const notas = document.getElementById('ef-notas').value.trim();
+  const presupVal = parseFloat(document.getElementById('ef-presup').value) || 0;
+  const cuotasData = etapaCuotas ? {
+    n: parseInt(document.getElementById('ef-ncuotas').value) || 3,
+    fechaInicio: document.getElementById('ef-fecha-inicio').value || hoy()
+  } : null;
+  const p = proj();
+  if (!p.etapas) p.etapas = [];
+  const editIdx = document.getElementById('ef-edit-idx').value;
+  const etapa = { nombre, pct, est: etapaEst, notas, presup: presupVal, presupMon: etapaMoneda, cuotas: cuotasData };
+  try {
+    if (editIdx !== '') {
+      const e = p.etapas[parseInt(editIdx)];
+      Object.assign(e, etapa);
+      await dbActualizarEtapa(e);
+    } else {
+      const nueva = await dbAgregarEtapa(p.id, etapa);
+      p.etapas.push({ ...etapa, id: nueva.id });
+    }
+    closeSheet('sheet-etapa'); renderEtapas();
+    showToast(`✓ Etapa "${nombre}" guardada`);
+  } catch(e) { showToast('Error al guardar etapa'); }
+}
+
+function editarEtapa(idx) {
+  const e = proj().etapas?.[idx]; if (!e) return;
+  document.getElementById('sheet-etapa-title').textContent = 'Editar etapa';
+  document.getElementById('ef-edit-idx').value = idx;
+  // Intentar matchear con opción existente
+  const sel = document.getElementById('ef-nombre');
+  const opt = Array.from(sel.options).find(o => o.value === e.nombre);
+  sel.value = opt ? e.nombre : 'Otra…';
+  if (!opt) {
+    document.getElementById('ef-custom-wrap').style.display = 'block';
+    document.getElementById('ef-custom').value = e.nombre;
+  }
+  document.getElementById('ef-pct').value = e.pct;
+  document.getElementById('ef-pct-val').textContent = e.pct + '%';
+  document.getElementById('ef-notas').value = e.notas || '';
+  setEtapaEst(e.est || 'pendiente');
+  openSheet('sheet-etapa');
+}
+
+async function eliminarEtapa(idx) {
+  if (!confirm('¿Eliminar esta etapa?')) return;
+  const p = proj(); const e = p.etapas[idx];
+  if (!e?.id) { p.etapas.splice(idx, 1); renderEtapas(); return; }
+  try { await dbEliminarEtapa(e.id); p.etapas.splice(idx, 1); renderEtapas(); }
+  catch(err) { showToast('Error al eliminar'); }
+}
+
+function renderEtapas() {
+  const p = proj(); if (!p) return;
+  const etapas = p.etapas || [];
+  const el = document.getElementById('etapas-list'); if (!el) return;
+  if (!etapas.length) {
+    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;background:var(--surface);border-radius:12px"><div style="font-size:28px;margin-bottom:6px">🏗️</div>Agregá las etapas de tu obra para seguir el avance</div>`;
+    return;
+  }
+  // Avance global
+  const avgPct = Math.round(etapas.reduce((a, e) => a + e.pct, 0) / etapas.length);
+  const estColors = { pendiente: 'var(--text4)', en_curso: 'var(--blue)', completada: 'var(--green)' };
+  el.innerHTML = `
+    <div style="background:var(--surface);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:600;color:var(--text2)">AVANCE GLOBAL</div>
+        <div style="font-size:22px;font-weight:700;color:var(--blue)">${avgPct}%</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:99px;height:10px;overflow:hidden">
+        <div style="width:${avgPct}%;height:100%;background:var(--blue);border-radius:99px;transition:width .5s"></div>
+      </div>
+    </div>
+    ${etapas.map((e, i) => {
+      const col = e.pct === 100 ? 'var(--green)' : e.pct > 0 ? 'var(--blue)' : 'var(--surface3)';
+      return `<div class="etapa-row">
+        <div class="etapa-header">
+          <div class="etapa-dot" style="background:${estColors[e.est || 'pendiente']}"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:600">${e.nombre}</div>
+            ${e.notas ? `<div style="font-size:12px;color:var(--text3)">${e.notas}</div>` : ''}
+          </div>
+          <div style="font-size:15px;font-weight:700;color:${col};margin-right:8px">${e.pct}%</div>
+          ${canEdit() ? `<button onclick="editarEtapa(${i})" style="background:var(--surface2);border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer">✏️</button>` : ''}
+        </div>
+        <div class="etapa-prog-bg">
+          <div class="etapa-prog-fill" style="width:${e.pct}%;background:${col}"></div>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ══════════════ COMPARATIVO PROYECTOS ══════════════
+function abrirComparativo() {
+  const tc = getTc();
+  const body = document.getElementById('comparativo-body');
+  body.innerHTML = S.proyectos.map(p => {
+    const eg = p.mov.filter(m => m.tipo === 'egreso' && !m.anulado).reduce((a, m) => a + toARS(m), 0);
+    const ing = p.mov.filter(m => m.tipo === 'ingreso' && !m.anulado).reduce((a, m) => a + toARS(m), 0);
+    const ventaTotal = (p.unidades || []).reduce((a, u) => a + (u.moneda === 'USD' ? u.precio * (u.tc || tc) : u.precio), 0);
+    const ganancia = ventaTotal - eg;
+    const roi = eg > 0 && ventaTotal > 0 ? (ganancia / eg * 100) : null;
+    const avgEtapa = p.etapas?.length ? Math.round(p.etapas.reduce((a,e) => a+e.pct,0)/p.etapas.length) : null;
+    const color = p.color || 'var(--blue)';
+    return `
+    <div style="background:var(--surface2);border-radius:12px;margin-bottom:12px;overflow:hidden">
+      <div style="height:4px;background:${color}"></div>
+      <div style="padding:14px 16px">
+        <div style="font-size:16px;font-weight:700;margin-bottom:12px">${p.nombre}</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+          <div>
+            <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px">INVERTIDO</div>
+            <div style="font-size:15px;font-weight:700;color:var(--red)">${fUSD(eg)}</div>
+            <div style="font-size:11px;color:var(--text3)">${fARS(eg)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px">PRECIO VENTA</div>
+            <div style="font-size:15px;font-weight:700;color:var(--green)">${ventaTotal > 0 ? fUSD(ventaTotal) : '—'}</div>
+            <div style="font-size:11px;color:var(--text3)">${ventaTotal > 0 ? fARS(ventaTotal) : 'Sin definir'}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px">ROI PROYECTADO</div>
+            <div style="font-size:15px;font-weight:700;color:${roi === null ? 'var(--text3)' : roi >= 0 ? 'var(--green)' : 'var(--red)'}">
+              ${roi !== null ? (roi >= 0 ? '+' : '') + roi.toFixed(1) + '%' : '—'}
+            </div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:2px">AVANCE OBRA</div>
+            <div style="font-size:15px;font-weight:700;color:var(--blue)">${avgEtapa !== null ? avgEtapa + '%' : '—'}</div>
+          </div>
+        </div>
+        ${avgEtapa !== null ? `
+        <div style="margin-top:10px">
+          <div style="background:var(--surface3);border-radius:99px;height:5px;overflow:hidden">
+            <div style="width:${avgEtapa}%;height:100%;background:${color};border-radius:99px"></div>
+          </div>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('') || '<div style="text-align:center;padding:24px;color:var(--text3)">No hay proyectos para comparar</div>';
+  openSheet('sheet-comparativo');
+}
+
+// ══════════════ EXPORT A EXCEL ══════════════
+function exportarExcel() {
+  const p = proj(); if (!p) return;
+  const tc = getTc();
+  // Generar CSV para el contador (compatible con Excel)
+  const headers = ['Fecha','Tipo','Categoría','Descripción','Quién','Moneda','Monto','TC','Monto ARS','USD equiv.','Cuota','Notas','Anulado'];
+  const rows = p.mov.map(m => [
+    m.fecha,
+    m.tipo,
+    m.cat,
+    m.desc,
+    m.quien || '—',
+    m.moneda,
+    m.monto,
+    m.tc || tc,
+    Math.round(toARS(m)),
+    Math.round(toARS(m) / tc),
+    m.cuota ? `${m.cuota.n}/${m.cuota.total}` : '—',
+    m.notas || '—',
+    m.anulado ? 'Sí' : 'No'
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const bom = '\uFEFF'; // BOM para que Excel abra en UTF-8
+  const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${p.nombre.replace(/[^a-z0-9]/gi,'_')}_movimientos_${hoy()}.csv`;
+  a.click();
+  showToast('✓ Excel exportado');
+}
+
+// ══════════════ ETAPA — PRESUPUESTO Y CUOTAS ══════════════
+let etapaMoneda = 'USD';
+let etapaCuotas = false;
+
+function setEtapaMon(mon) {
+  etapaMoneda = mon;
+  document.getElementById('ef-mon-ars').classList.toggle('active', mon === 'ARS');
+  document.getElementById('ef-mon-usd').classList.toggle('active', mon === 'USD');
+}
+
+function setEtapaCuotas(val) {
+  etapaCuotas = val;
+  document.getElementById('ef-cuota-no').classList.toggle('active', !val);
+  document.getElementById('ef-cuota-si').classList.toggle('active', val);
+  document.getElementById('ef-cuotas-wrap').style.display = val ? 'block' : 'none';
+}
+
+// ══════════════ CASHFLOW ══════════════
+let cfTab = 'hist';
+
+function setCfTab(tab, el) {
+  cfTab = tab;
+  document.getElementById('cf-hist').style.display = tab === 'hist' ? 'block' : 'none';
+  document.getElementById('cf-proy').style.display = tab === 'proy' ? 'block' : 'none';
+  ['hist','proy'].forEach(t => {
+    const btn = document.getElementById(`cf-tab-${t}`);
+    if (btn) {
+      btn.classList.toggle('active', t === tab);
+      btn.style.color = t === tab ? 'var(--text)' : 'var(--text3)';
+      btn.style.background = t === tab ? 'var(--surface)' : 'transparent';
+      btn.style.boxShadow = t === tab ? '0 1px 4px rgba(0,0,0,.1)' : 'none';
+    }
+  });
+  renderCashflow();
+}
+
+function renderCashflow() {
+  const p = proj(); if (!p) return;
+  if (cfTab === 'hist') renderCashflowHistorico(p);
+  else renderCashflowProyeccion(p);
+}
+
+function renderCashflowHistorico(p) {
+  const tc = getTc();
+  // Agrupar egresos no anulados por mes
+  const byMes = {};
+  const detalle = {};
+  p.mov.filter(m => m.tipo === 'egreso' && !m.anulado).forEach(m => {
+    const mes = m.fecha?.substring(0, 7); // YYYY-MM
+    if (!mes) return;
+    byMes[mes] = (byMes[mes] || 0) + (toARS(m) / tc);
+    if (!detalle[mes]) detalle[mes] = [];
+    detalle[mes].push(m);
+  });
+
+  const meses = Object.keys(byMes).sort();
+  const vals = meses.map(m => byMes[m]);
+  const maxVal = Math.max(...vals, 1);
+
+  // Barras
+  const barras = document.getElementById('cf-barras-hist');
+  const labels = document.getElementById('cf-labels-hist');
+  if (!meses.length) {
+    barras.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;width:100%;align-self:center">Sin movimientos</div>';
+    labels.innerHTML = '';
+  } else {
+    barras.innerHTML = meses.map((mes, i) => {
+      const pct = Math.max((vals[i] / maxVal) * 100, 3);
+      const label = mes.substring(5); // MM
+      return `<div class="cf-bar-wrap">
+        <div style="font-size:10px;font-weight:700;color:var(--orange)">USD ${Math.round(vals[i]).toLocaleString('es-AR')}</div>
+        <div class="cf-bar" style="height:${pct}%;background:var(--orange);opacity:${0.5 + pct/200}"></div>
+        <div class="cf-bar-label">${mes.replace('-','/')}</div>
+      </div>`;
+    }).join('');
+    labels.innerHTML = '';
+  }
+
+  // Detalle mensual
+  const det = document.getElementById('cf-detalle-hist');
+  det.innerHTML = meses.slice().reverse().map(mes => {
+    const movs = detalle[mes] || [];
+    const totalUSD = byMes[mes];
+    const label = new Date(mes + '-01').toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+    return `<div style="border-bottom:.5px solid var(--sep)">
+      <div style="display:flex;justify-content:space-between;padding:13px 16px;cursor:pointer;font-weight:600"
+        onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <span style="text-transform:capitalize">${label}</span>
+        <span style="color:var(--orange)">USD ${Math.round(totalUSD).toLocaleString('es-AR')}</span>
+      </div>
+      <div style="display:none;padding:0 16px 12px">
+        ${movs.map(m => `<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:.5px solid var(--bg)">
+          <span style="color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.desc}</span>
+          <span style="color:var(--text3);margin-left:8px">USD ${Math.round(toARS(m)/tc).toLocaleString('es-AR')}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty-state"><i class="bi bi-inbox"></i><p>Sin egresos registrados</p></div>';
+}
+
+function renderCashflowProyeccion(p) {
+  const tc = getTc();
+  const hoyDate = new Date();
+  const byMesProy = {};
+
+  // 1. Cuotas futuras (movimientos con fecha futura)
+  const cuotasFuturas = p.mov.filter(m => m.tipo === 'egreso' && !m.anulado && m.cuota && new Date(m.fecha) > hoyDate);
+  cuotasFuturas.forEach(m => {
+    const mes = m.fecha.substring(0, 7);
+    byMesProy[mes] = (byMesProy[mes] || 0) + (toARS(m) / tc);
+  });
+
+  // 2. Etapas pendientes con presupuesto
+  const etapasPend = (p.etapas || []).filter(e => e.est !== 'completada' && e.presup > 0);
+  etapasPend.forEach(e => {
+    const presupUSD = e.presupMon === 'ARS' ? e.presup / tc : e.presup;
+    const restante = presupUSD * (1 - (e.pct || 0) / 100);
+    if (e.cuotas && e.cuotas.n > 1 && e.cuotas.fechaInicio) {
+      // Distribuir en cuotas
+      const montoCuota = restante / e.cuotas.n;
+      for (let i = 0; i < e.cuotas.n; i++) {
+        const d = new Date(e.cuotas.fechaInicio);
+        d.setMonth(d.getMonth() + i);
+        if (d > hoyDate) {
+          const mes = d.toISOString().substring(0, 7);
+          byMesProy[mes] = (byMesProy[mes] || 0) + montoCuota;
+        }
+      }
+    } else {
+      // Pago único — próximo mes
+      const proxMes = new Date(hoyDate.getFullYear(), hoyDate.getMonth() + 1, 1).toISOString().substring(0, 7);
+      byMesProy[proxMes] = (byMesProy[proxMes] || 0) + restante;
+    }
+  });
+
+  const meses = Object.keys(byMesProy).sort().slice(0, 9);
+  const vals = meses.map(m => byMesProy[m]);
+  const maxVal = Math.max(...vals, 1);
+  const totalProy = vals.reduce((a, b) => a + b, 0);
+
+  // Card necesidad de capital
+  const cap = calcularNecesidadCapital(p);
+  const capEl = document.getElementById('cf-necesidad-capital');
+  if (capEl) {
+    capEl.innerHTML = `
+      <div style="padding:14px 16px;background:var(--surface);border-radius:14px;margin:0 16px">
+        <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Necesidad de capital</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px">CUOTAS FUTURAS</div>
+            <div style="font-size:16px;font-weight:700;color:var(--indigo)">USD ${Math.round(cap.totalCuotas).toLocaleString('es-AR')}</div>
+            <div style="font-size:11px;color:var(--text3)">${cap.cuotasFut} pagos pendientes</div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px">ETAPAS PENDIENTES</div>
+            <div style="font-size:16px;font-weight:700;color:var(--orange)">USD ${Math.round(cap.totalEtapas).toLocaleString('es-AR')}</div>
+            <div style="font-size:11px;color:var(--text3)">${cap.etapasPend} etapas con presup.</div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px">SALDO ACTUAL</div>
+            <div style="font-size:16px;font-weight:700;color:${cap.saldo>=0?'var(--green)':'var(--red)'}">USD ${Math.round(Math.abs(cap.saldo)).toLocaleString('es-AR')}</div></div>
+          <div style="background:${cap.necesidad>0?'rgba(255,59,48,.08)':'rgba(52,199,89,.08)'};border-radius:10px;padding:8px 12px">
+            <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px">${cap.necesidad>0?'CAPITAL NECESARIO':'CAPITAL EXCEDENTE'}</div>
+            <div style="font-size:18px;font-weight:700;color:${cap.necesidad>0?'var(--red)':'var(--green)'}">USD ${Math.round(Math.abs(cap.necesidad)).toLocaleString('es-AR')}</div>
+          </div>
+        </div>
+        ${cap.necesidad > 0 ? `<div style="background:rgba(255,59,48,.06);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red)">
+          ⚠️ Necesitás aportar aproximadamente <strong>USD ${Math.round(cap.necesidad/3).toLocaleString('es-AR')}/mes</strong> por socio en los próximos meses.
+        </div>` : `<div style="background:rgba(52,199,89,.06);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--green)">
+          ✓ El saldo actual cubre todos los pagos proyectados.
+        </div>`}
+      </div>`;
+    capEl.style.display = 'block';
+  }
+
+  // Barras proyección
+  const barras = document.getElementById('cf-barras-proy');
+  barras.innerHTML = meses.length ? meses.map((mes, i) => {
+    const pct = Math.max((vals[i] / maxVal) * 100, 3);
+    return `<div class="cf-bar-wrap">
+      <div style="font-size:10px;font-weight:700;color:var(--blue)">USD ${Math.round(vals[i]).toLocaleString('es-AR')}</div>
+      <div class="cf-bar" style="height:${pct}%;background:var(--blue);opacity:.7"></div>
+      <div class="cf-bar-label">${mes.replace('-','/')}</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--text3);font-size:13px;text-align:center;width:100%;align-self:center">Sin pagos futuros proyectados</div>';
+  document.getElementById('cf-labels-proy').innerHTML = '';
+
+  // Etapas pendientes
+  document.getElementById('cf-etapas-proy').innerHTML = etapasPend.length ? etapasPend.map(e => {
+    const presupUSD = e.presupMon === 'ARS' ? e.presup / tc : e.presup;
+    const restante = presupUSD * (1 - (e.pct || 0) / 100);
+    return `<div class="cf-etapa-row">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600">${e.nombre}</div>
+        <div style="font-size:12px;color:var(--text3)">${e.pct || 0}% ejecutado · ${e.cuotas?.n > 1 ? e.cuotas.n + ' cuotas' : 'pago único'}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:14px;font-weight:700;color:var(--blue)">USD ${Math.round(restante).toLocaleString('es-AR')}</div>
+        <div style="font-size:11px;color:var(--text3)">restante</div>
+      </div>
+    </div>`;
+  }).join('') : '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Sin etapas con presupuesto definido</div>';
+
+  // Cuotas futuras detalle
+  document.getElementById('cf-cuotas-proy').innerHTML = cuotasFuturas.length ? cuotasFuturas.slice(0, 15).map(m => `
+    <div class="cf-etapa-row">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500">${m.desc}</div>
+        <div style="font-size:12px;color:var(--text3)">${m.fecha}</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--indigo)">USD ${Math.round(toARS(m)/tc).toLocaleString('es-AR')}</div>
+    </div>`).join('') : '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Sin cuotas futuras registradas</div>';
+}
+
+// ══════════════ SWIPE ══════════════
+let swipeStartX = 0;
+let swipeEl = null;
+let swipeOpen = null; // ID del swipe actualmente abierto
+
+function swipeStart(e, id) {
+  swipeStartX = e.touches[0].clientX;
+  swipeEl = id;
+}
+
+function swipeMove(e, id) {
+  const dx = e.touches[0].clientX - swipeStartX;
+  if (dx < -10) e.preventDefault(); // evitar scroll vertical
+  const content = document.querySelector(`#${id} .swipe-content`);
+  if (!content) return;
+  const offset = Math.max(dx, -216);
+  if (offset < 0) content.style.transform = `translateX(${offset}px)`;
+}
+
+function swipeEnd(e, id) {
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const content = document.querySelector(`#${id} .swipe-content`);
+  if (!content) return;
+  content.style.transition = 'transform .25s cubic-bezier(.32,1,.41,1)';
+  if (dx < -60) {
+    // Abrir
+    if (swipeOpen && swipeOpen !== id) resetSwipe(swipeOpen);
+    content.style.transform = 'translateX(-216px)';
+    swipeOpen = id;
+  } else {
+    resetSwipe(id);
+  }
+}
+
+function resetSwipe(id) {
+  const content = document.querySelector(`#${id} .swipe-content`);
+  if (content) { content.style.transition = 'transform .2s'; content.style.transform = 'translateX(0)'; }
+  if (swipeOpen === id) swipeOpen = null;
+}
+
+// Cerrar swipe al tocar otro lugar
+document.addEventListener('touchstart', e => {
+  if (swipeOpen && !e.target.closest(`#${swipeOpen}`)) resetSwipe(swipeOpen);
+}, { passive: true });
+
+// ══════════════ VISTA POR SOCIO ══════════════
+let filterSocio = '';
+
+function setChip(el, tipo, val) {
+  if (tipo === 'tipo') {
+    if (val === 'socio') {
+      // Modo vista por socio
+      filterTipo = '';
+      document.getElementById('vista-socio').style.display = 'block';
+      document.getElementById('mov-list').style.display = 'none';
+      document.getElementById('mov-empty').style.display = 'none';
+      document.getElementById('chips-cat').style.display = 'none';
+      document.getElementById('chips-fecha').style.display = 'none';
+      document.querySelectorAll('#chips-tipo .chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderVistaSocio();
+      return;
+    }
+    // Salir de vista por socio
+    document.getElementById('vista-socio').style.display = 'none';
+    document.getElementById('mov-list').style.display = 'block';
+    document.getElementById('chips-cat').style.display = 'flex';
+    document.getElementById('chips-fecha').style.display = 'flex';
+    filterTipo = val;
+    document.querySelectorAll('#chips-tipo .chip').forEach(c => c.classList.remove('active'));
+  } else if (tipo === 'cat') {
+    filterCat = val;
+    document.querySelectorAll('#chips-cat .chip').forEach(c => c.classList.remove('active'));
+  }
+  el.classList.add('active');
+  renderMovimientos();
+}
+
+function renderVistaSocio() {
+  const p = proj(); if (!p) return;
+  const tc = getTc();
+  const container = document.getElementById('vista-socio');
+
+  // Obtener todos los socios únicos
+  const socios = [...new Set(p.mov.filter(m => m.quien).map(m => m.quien))];
+  if (!socios.length) {
+    container.innerHTML = '<div class="empty-state"><i class="bi bi-people"></i><p>No hay movimientos con socio asignado</p></div>';
+    return;
+  }
+
+  // Totales globales para calcular % real vs acordado
+  const totalEg = p.mov.filter(m => m.tipo==='egreso' && !m.anulado).reduce((a,m) => a+toARS(m), 0);
+
+  container.innerHTML = socios.map(socio => {
+    const movsSocio = p.mov.filter(m => m.quien === socio && !m.anulado);
+    const egSocio = movsSocio.filter(m=>m.tipo==='egreso').reduce((a,m)=>a+toARS(m),0);
+    const ingSocio = movsSocio.filter(m=>m.tipo==='ingreso').reduce((a,m)=>a+toARS(m),0);
+    const pctReal = totalEg > 0 ? (egSocio/totalEg*100).toFixed(1) : '0';
+    // Buscar % acordado en distribucion de movimientos
+    const distMovs = p.mov.filter(m=>m.distribucion?.length>1);
+    let pctAcordado = '—';
+    if (distMovs.length) {
+      const dist = distMovs[0].distribucion.find(d=>d.nombre===socio);
+      if (dist) pctAcordado = dist.pct + '%';
+    }
+    const ini = socio.substring(0,2).toUpperCase();
+    const colors = ['#007aff','#34c759','#ff9500','#af52de','#ff3b30'];
+    const color = colors[socios.indexOf(socio) % colors.length];
+
+    // Últimos 3 movimientos del socio
+    const ultimos = [...movsSocio].reverse().slice(0,3);
+
+    return `<div class="socio-card">
+      <div class="socio-header">
+        <div style="width:44px;height:44px;border-radius:50%;background:${color}18;color:${color};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0">${ini}</div>
+        <div style="flex:1">
+          <div style="font-size:17px;font-weight:700">${socio}</div>
+          <div style="font-size:12px;color:var(--text3)">Real ${pctReal}% del total · Acordado ${pctAcordado}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:15px;font-weight:700;color:${color}">${pctReal}%</div>
+          <div style="font-size:11px;color:var(--text3)">${movsSocio.length} movim.</div>
+        </div>
+      </div>
+      <div class="socio-stats">
+        <div class="socio-stat">
+          <div class="socio-stat-val t-eg">${fUSD(egSocio)}</div>
+          <div class="socio-stat-lbl">Egresos</div>
+        </div>
+        <div class="socio-stat">
+          <div class="socio-stat-val t-ing">${fUSD(ingSocio)}</div>
+          <div class="socio-stat-lbl">Ingresos</div>
+        </div>
+        <div class="socio-stat">
+          <div class="socio-stat-val" style="color:${(ingSocio-egSocio)>=0?'var(--green)':'var(--red)'}">${fUSD(ingSocio-egSocio)}</div>
+          <div class="socio-stat-lbl">Saldo</div>
+        </div>
+      </div>
+      ${ultimos.length ? `<div style="border-top:.5px solid var(--sep)">
+        ${ultimos.map(m=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:.5px solid var(--sep)">
+          <div style="font-size:12px;color:var(--text3);min-width:72px">${m.fecha}</div>
+          <div style="flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.desc||m.descripcion}</div>
+          <div style="font-size:13px;font-weight:600;color:${m.tipo==='ingreso'?'var(--green)':'var(--red)'}">${m.tipo==='ingreso'?'+':'-'}${fUSD(toARS(m))}</div>
+        </div>`).join('')}
+        <div style="padding:8px 16px;text-align:center">
+          <button onclick="filterBySocio('${socio}')" style="background:none;border:none;color:var(--blue);font-size:13px;font-weight:500;cursor:pointer">Ver todos los movimientos →</button>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('') +
+
+  // Resumen de balance entre socios
+  `<div style="margin:0 16px 12px;background:var(--surface);border-radius:14px;padding:16px">
+    <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px">BALANCE ENTRE SOCIOS</div>
+    <div style="font-size:13px;color:var(--text3);line-height:1.8">
+      ${socios.map(s => {
+        const eg = p.mov.filter(m=>m.quien===s&&m.tipo==='egreso'&&!m.anulado).reduce((a,m)=>a+toARS(m)/tc,0);
+        const pctReal = totalEg > 0 ? eg/(totalEg/tc)*100 : 0;
+        return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:.5px solid var(--bg)">
+          <span style="font-weight:500">${s}</span>
+          <span style="font-weight:700">USD ${Math.round(eg).toLocaleString('es-AR')} <span style="font-weight:400;color:var(--text3)">(${pctReal.toFixed(1)}%)</span></span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function filterBySocio(socio) {
+  filterSocio = socio;
+  // Volver a lista normal
+  document.getElementById('vista-socio').style.display = 'none';
+  document.getElementById('mov-list').style.display = 'block';
+  document.getElementById('chips-cat').style.display = 'flex';
+  document.getElementById('chips-fecha').style.display = 'flex';
+  document.querySelectorAll('#chips-tipo .chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('#chips-tipo .chip').classList.add('active');
+  filterTipo = '';
+  renderMovimientos();
+  // Agregar chip de socio activo
+  const chipsSocio = document.getElementById('chips-cat');
+  showToast(`Filtrando por ${socio}`);
+}
+
+// ══════════════ PROYECCIÓN DE CAPITAL ══════════════
+function calcularNecesidadCapital(p) {
+  const tc = getTc();
+  const hoyDate = new Date();
+  const cuotasFut = p.mov.filter(m => m.tipo==='egreso' && !m.anulado && m.cuota && new Date(m.fecha) > hoyDate);
+  const totalCuotas = cuotasFut.reduce((a,m) => a + toARS(m)/tc, 0);
+  const etapasPend = (p.etapas||[]).filter(e => e.est!=='completada' && e.presup>0);
+  const totalEtapas = etapasPend.reduce((a,e) => {
+    const presupUSD = e.presupMon==='ARS' ? e.presup/tc : e.presup;
+    return a + presupUSD * (1-(e.pct||0)/100);
+  }, 0);
+  const ing = p.mov.filter(m=>m.tipo==='ingreso'&&!m.anulado).reduce((a,m)=>a+toARS(m)/tc,0);
+  const eg  = p.mov.filter(m=>m.tipo==='egreso' &&!m.anulado).reduce((a,m)=>a+toARS(m)/tc,0);
+  const saldo = ing - eg;
+  const necesidad = (totalCuotas + totalEtapas) - saldo;
+  return { totalCuotas, totalEtapas, saldo, necesidad, cuotasFut: cuotasFut.length, etapasPend: etapasPend.length };
+}
+
+// ══════════════ BÚSQUEDA GLOBAL ══════════════
+function toggleBusqueda() {
+  const overlay = document.getElementById('busqueda-overlay');
+  const visible = overlay.style.display === 'flex';
+  overlay.style.display = visible ? 'none' : 'flex';
+  if (!visible) {
+    setTimeout(() => document.getElementById('busqueda-input')?.focus(), 100);
+    document.getElementById('busqueda-results').innerHTML =
+      '<div style="text-align:center;padding:48px 24px;color:var(--text3)"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" style="opacity:.3;display:block;margin:0 auto 12px"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Buscá movimientos, tareas y proyectos</div>';
+  } else {
+    document.getElementById('busqueda-input').value = '';
+  }
+}
+
+function renderBusqueda(query) {
+  const q = query.toLowerCase().trim();
+  const res = document.getElementById('busqueda-results');
+  if (!q || q.length < 2) { res.innerHTML = ''; return; }
+
+  const resultados = [];
+
+  // Buscar en todos los proyectos
+  S.proyectos.forEach(p => {
+    // Movimientos
+    p.mov.filter(m => !m.anulado).forEach((m, i) => {
+      const matchDesc = (m.desc || m.descripcion || '').toLowerCase().includes(q);
+      const matchCat = m.cat?.toLowerCase().includes(q);
+      const matchQuien = m.quien?.toLowerCase().includes(q);
+      if (matchDesc || matchCat || matchQuien) {
+        const ars = toARS(m);
+        resultados.push({
+          tipo: 'mov', icon: '💰',
+          titulo: m.desc || m.descripcion,
+          sub: `${p.nombre} · ${m.cat} · ${m.fecha}`,
+          val: fUSD(ars),
+          color: m.tipo === 'ingreso' ? 'var(--green)' : 'var(--red)',
+          onclick: `abrirProyecto('${p.id}');navTo('movimientos',document.getElementById('tab-movimientos'));toggleBusqueda()`
+        });
+      }
+    });
+    // Tareas
+    p.tareas.forEach(t => {
+      if (t.tit?.toLowerCase().includes(q) || t.desc?.toLowerCase().includes(q)) {
+        const estCol = { pendiente: 'var(--orange)', en_curso: 'var(--blue)', completada: 'var(--green)' };
+        resultados.push({
+          tipo: 'tarea', icon: '✅',
+          titulo: t.tit,
+          sub: `${p.nombre} · ${t.est}`,
+          val: t.ven || '',
+          color: estCol[t.est] || 'var(--text3)',
+          onclick: `abrirProyecto('${p.id}');navTo('tareas',document.getElementById('tab-tareas'));toggleBusqueda()`
+        });
+      }
+    });
+    // Proyecto mismo
+    if (p.nombre.toLowerCase().includes(q) || p.desc?.toLowerCase().includes(q)) {
+      const eg = p.mov.filter(m=>m.tipo==='egreso'&&!m.anulado).reduce((a,m)=>a+toARS(m),0);
+      resultados.push({
+        tipo: 'proyecto', icon: '📁',
+        titulo: p.nombre,
+        sub: p.desc || `${p.mov.length} movimientos`,
+        val: fUSD(eg),
+        color: p.color || 'var(--blue)',
+        onclick: `abrirProyecto('${p.id}');toggleBusqueda()`
+      });
+    }
+  });
+
+  if (!resultados.length) {
+    res.innerHTML = `<div style="text-align:center;padding:48px 24px;color:var(--text3);font-size:15px">Sin resultados para "${query}"</div>`;
+    return;
+  }
+
+  res.innerHTML = `<div style="padding:8px 16px;font-size:12px;color:var(--text3);font-weight:600">${resultados.length} resultado${resultados.length !== 1 ? 's' : ''}</div>` +
+    resultados.slice(0, 30).map(r => `
+    <div class="ios-row" onclick="${r.onclick}" style="gap:12px">
+      <div style="width:36px;height:36px;border-radius:10px;background:${r.color}18;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${r.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.titulo}</div>
+        <div style="font-size:12px;color:var(--text3)">${r.sub}</div>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:${r.color};flex-shrink:0">${r.val}</div>
+    </div>`).join('');
+}
+
+// ══════════════ DASHBOARD CROSS-PROYECTO ══════════════
+function renderCrossResumen() {
+  const tc = getTc();
+  const totEg = S.proyectos.reduce((a, p) => a + p.mov.filter(m=>m.tipo==='egreso'&&!m.anulado).reduce((s,m)=>s+toARS(m),0), 0);
+  const totIng = S.proyectos.reduce((a, p) => a + p.mov.filter(m=>m.tipo==='ingreso'&&!m.anulado).reduce((s,m)=>s+toARS(m),0), 0);
+  const totVenta = S.proyectos.reduce((a, p) => a + (p.unidades||[]).reduce((s,u) => s + (u.moneda==='USD'?u.precio*(u.tc||tc):u.precio), 0), 0);
+  const ganancia = totVenta - totEg;
+  const nProyectos = S.proyectos.length;
+  const tareasPend = S.proyectos.reduce((a, p) => a + (p.tareas||[]).filter(t=>t.est!=='completada').length, 0);
+
+  const stats = document.getElementById('cross-stats');
+  if (!stats) return;
+  stats.innerHTML = [
+    { label: 'Invertido', val: fUSD(totEg), sub: fARS(totEg), color: 'var(--red)' },
+    { label: 'Ganancia proy.', val: totVenta > 0 ? fUSD(ganancia) : '—', sub: totVenta > 0 ? fARS(ganancia) : 'Sin precio', color: ganancia >= 0 ? 'var(--green)' : 'var(--red)' },
+    { label: 'Tareas pend.', val: tareasPend, sub: `en ${nProyectos} proyectos`, color: tareasPend > 0 ? 'var(--orange)' : 'var(--green)' },
+  ].map((s, i) => `
+    <div style="padding:10px 14px;${i<2?'border-right:.5px solid var(--sep)':''}">
+      <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px">${s.label.toUpperCase()}</div>
+      <div style="font-size:15px;font-weight:700;color:${s.color}">${s.val}</div>
+      <div style="font-size:11px;color:var(--text3)">${s.sub}</div>
+    </div>`).join('');
+
+  // Barra
+  const costoPct = totVenta > 0 ? Math.min(totEg/totVenta*100, 100) : (totEg > 0 ? 100 : 0);
+  const bar = document.getElementById('cross-bar');
+  const pctLabel = document.getElementById('cross-pct-label');
+  if (bar) bar.style.width = costoPct.toFixed(1) + '%';
+  if (pctLabel) pctLabel.textContent = costoPct.toFixed(1) + '% de precio venta';
+}
+
+// ══════════════ AUDITORÍA ══════════════
+async function dbLog(accion, detalle, proyId) {
+  try {
+    await sb('auditoria', {
+      method: 'POST', prefer: 'return=minimal',
+      body: {
+        proyecto_id: proyId || proj()?.id,
+        usuario: currentUser?.nombre || currentUser?.email,
+        email: currentUser?.email,
+        accion,
+        detalle,
+        fecha: new Date().toISOString()
+      }
+    });
+  } catch(e) {} // No bloquear si falla
+}
+
+async function renderAuditoria() {
+  const p = proj(); if (!p) return;
+  const el = document.getElementById('audit-list'); if (!el) return;
+  try {
+    const logs = await sb(`auditoria?proyecto_id=eq.${p.id}&order=fecha.desc&limit=50`);
+    if (!logs.length) { el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Sin actividad registrada</div>'; return; }
+    const iconMap = { 'mov_nuevo':'💰', 'mov_editar':'✏️', 'mov_anular':'⊘', 'mov_eliminar':'🗑️', 'tarea_nueva':'✅', 'tarea_mover':'→', 'etapa_nueva':'🏗️', 'proyecto_nuevo':'📁', 'usuario_invitar':'👤' };
+    el.innerHTML = logs.map(l => {
+      const icon = iconMap[l.accion] || '📝';
+      const fecha = new Date(l.fecha).toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      return `<div class="ios-row" style="gap:10px">
+        <div style="width:32px;height:32px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500">${l.detalle}</div>
+          <div style="font-size:12px;color:var(--text3)">${l.usuario} · ${fecha}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">Ejecutá el SQL de auditoría en Supabase primero</div>';
+  }
+}
+function exportJSON() {
+  saveTc();
+  const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `obratrack-${hoy()}.json`;
+  a.click();
+  showToast('✓ Exportado');
+}
+function importJSON() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = e => {
+    const r = new FileReader();
+    r.onload = ev => { try { S = { ...S, ...JSON.parse(ev.target.result) }; saveTc(); navTo(currentPage, null); showToast('✓ Datos importados'); } catch { showToast('Error al leer archivo'); } };
+    r.readAsText(e.target.files[0]);
+  };
+  input.click();
+}
+</script>
+</body>
+</html>
